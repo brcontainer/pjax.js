@@ -1,0 +1,23 @@
+/*
+ * auto-pjax.js 0.0.2
+ *
+ * Copyright (c) 2017 Guilherme Nascimento (brcontainer@yahoo.com.br)
+ *
+ * Released under the MIT license
+ */
+
+.pjax-loader {
+    position: fixed;
+    z-index: 200000;
+    left: 0;
+    top: 0;
+    width: 100%;
+}
+.pjax-loader .pjax-progress {
+    height: 2px;
+    width: 0px;
+    background-color: rgba(119, 182, 255, .9);
+    box-shadow: 0 0 2px rgba(0, 0, 0, .3);
+    -webkit-transition: width 3.5s ease;
+            transition: width 3.5s ease;
+}
