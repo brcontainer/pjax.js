@@ -8,7 +8,7 @@ The `auto-pjax.js` is a jQuery plugin that uses ajax, `pushState` and automatica
 </div>
 ```
 
-Pjax load all content from pages, but uses only contents from first element using `pjax-container`, if you need don't Pjax in a spefic link or form define `data-ignore-pjax` attribute , example:
+Pjax load all content from pages, but uses only contents from first element using `pjax-container`, if you need don't Pjax in a spefic link or form define `data-pjax-ignore` attribute , example:
 
 ```html
 <p>
