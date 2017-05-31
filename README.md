@@ -17,6 +17,20 @@ Pjax load all content from pages, but uses only contents from first element usin
 </p>
 ```
 
+## Usage
+
+For use:
+
+```js
+$.autoPjax();
+```
+
+If need update head tag (default is `false`):
+
+```js
+$.autoPjax({ "updatehead": true });
+```
+
 ## Pjax API
 
 Method | Equivalent

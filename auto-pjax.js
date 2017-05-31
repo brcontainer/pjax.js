@@ -1,20 +1,20 @@
 /*
- * auto-pjax.js 0.0.2
+ * auto-pjax.js 0.0.3
  *
  * Copyright (c) 2017 Guilherme Nascimento (brcontainer@yahoo.com.br)
  *
  * Released under the MIT license
  */
 
-(function (w, d) {
+(function (d, w, $) {
     "use strict";
 
     if (!w.history.pushState || !w.DOMParser || !/^http(|s):$/.test(w.location.protocol)) {
         return;
     }
 
-    var pjax, xhr, container, tmp, loader, progress, doc = $(d), head = $(d.head),
-        host = w.location.protocol.replace(/:/g, "") + "://" + w.location.host;
+    var pjax, xhr, container, tmp, loader, progress, updateHead, doc = $(d),
+        head = $(d.head), host = w.location.protocol.replace(/:/g, "") + "://" + w.location.host;
 
     function showProgress(show) {
         if (show) {
@@ -61,7 +61,9 @@
             }
 
             //Update head
-            head.html($(tmp.head).html());
+            if (updateHead) {
+                head.html($(tmp.head).html());
+            }
 
             //Update title
             d.title = title;
@@ -84,8 +86,6 @@
     w.addEventListener("popstate", function (e) {
         pjaxLoad(String(w.location), false);
     });
-
-    var ignore = ":not([data-pjax-ignore]):not([href^='#']):not([href^='javascript:'])";
 
     function pjaxRequest(e) {
 
@@ -129,6 +129,14 @@
         return false;
     }
 
-    doc.on("submit", "form" + ignore, pjaxRequest);
-    doc.on("click",  "a" + ignore, pjaxRequest);
-})(window, document);
+    $.autoPjax = function (opts) {
+        opts = $.extend({ "updateHead": false }, opts || {});
+
+        updateHead = !!opts.updateHead;
+
+        var ignore = ":not([data-pjax-ignore]):not([href^='#']):not([href^='javascript:'])";
+
+        doc.on("submit", "form" + ignore, pjaxRequest);
+        doc.on("click",  "a" + ignore, pjaxRequest);
+    };
+})(document, window, window.jQuery);
