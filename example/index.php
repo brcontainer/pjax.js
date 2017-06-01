@@ -1,3 +1,9 @@
+<?php
+if (isset($_SERVER['HTTP_X_PJAX'])) {
+    //Simulate slow page
+    sleep(2);
+}
+?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -8,9 +14,9 @@
 <body>
     <ul>
         <li><a href="./"><strong>Home</strong></a></li>
-        <li><a href="example-1.html">Example 1</a></li>
-        <li><a href="example-2.html">Example 2</a></li>
-        <li><a href="example-3.html">Example 3</a></li>
+        <li><a href="example-1.php">Example 1</a></li>
+        <li><a href="example-2.php">Example 2</a></li>
+        <li><a href="example-3.php">Example 3</a></li>
     </ul>
     <div class="pjax-container">
         <h1>Home page</h1>
