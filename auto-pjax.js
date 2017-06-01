@@ -13,23 +13,64 @@
         return;
     }
 
-    var pjax, xhr, container, tmp, loader, progress, updateHead, doc = $(d),
-        head = $(d.head), host = w.location.protocol.replace(/:/g, "") + "://" + w.location.host;
+    var pjax, xhr, container, loader, progress, updateHead, autoscroll, rootdoc,
+        doc = $(d), head = $(d.head), host = w.location.protocol.replace(/:/g, "") + "://" + w.location.host;
 
     function showProgress(show) {
         if (show) {
-            progress.css({ "display": "block", "width": "0%" });
+            progress.css({ "display": "block", "width": "0%", "opacity": "1" });
 
             setTimeout(function () {
                 progress.css("width", "90%");
             }, 1);
         } else {
-            progress.css("display", "none");
-            progress.removeClass("show-progress");
+            progress.css({ "opacity": "0", "width": "100%" });
+
+            setTimeout(function () {
+                progress.css("display", "none");
+            }, 1010);
         }
     }
 
-    function pjaxLoad(url, changestate, method, data)
+    function updateContainer(url, data, changestate)
+    {
+        var tmp = (new DOMParser).parseFromString(data, "text/html");
+
+        $(':focus').blur();
+
+        var title = $("title", tmp).text() || "";
+
+        if (changestate) {
+            w.history.pushState({
+                "pjaxUrl": url,
+                "pjaxData": data
+            }, title, url.substring(host.length));
+        }
+
+        //Update head
+        if (updateHead) {
+            head.html($(tmp.head).html());
+        }
+
+        //Update title
+        d.title = title;
+
+        //Update container
+        container.html( $(".pjax-container", tmp).html() || "" );
+
+        if (autoscroll && rootdoc) {
+            rootdoc.scrollLeft(0);
+            rootdoc.scrollTop(0);
+        }
+
+        tmp = null;
+
+        showProgress(false);
+
+        doc.trigger("pjax.done", [url]);
+    }
+
+    function pjaxLoad(url, method, data)
     {
         if (pjax) {
             pjax.abort();
@@ -50,32 +91,7 @@
         opts.url = url;
 
         pjax = $.ajax(opts).done(function (data) {
-            tmp = (new DOMParser).parseFromString(data, "text/html");
-
-            $(':focus').blur();
-
-            var title = $("title", tmp).text() || "";
-
-            if (changestate) {
-                w.history.pushState({ "pjaxUrl": url }, title, url.substring(host.length));
-            }
-
-            //Update head
-            if (updateHead) {
-                head.html($(tmp.head).html());
-            }
-
-            //Update title
-            d.title = title;
-
-            //Update container
-            container.html( $(".pjax-container", tmp).html() || "" );
-
-            tmp = null;
-
-            showProgress(false);
-
-            doc.trigger("pjax.done", [url]);
+            updateContainer(url, data, true, 0, 0);
         }).fail(function (xhr, status, error) {
             showProgress(false);
 
@@ -84,7 +100,11 @@
     }
 
     w.addEventListener("popstate", function (e) {
-        pjaxLoad(String(w.location), false);
+        if (e.state && e.state.pjaxUrl) {
+            updateContainer(e.state.pjaxUrl, e.state.pjaxData, false);
+        } else {
+            pjaxLoad(String(w.location));
+        }
     });
 
     function pjaxRequest(e) {
@@ -124,19 +144,39 @@
             return;
         }
 
-        pjaxLoad(url, true, method, data);
+        pjaxLoad(url, method, data);
 
         return false;
     }
 
     $.autoPjax = function (opts) {
-        opts = $.extend({ "updateHead": false }, opts || {});
+        opts = $.extend({
+            "updateHead": false,
+            "autoscroll": true,
+            "root": $(window)
+        }, opts || {});
 
+        rootdoc = opts.root;
         updateHead = !!opts.updateHead;
+        autoscroll = !!opts.autoscroll;
 
         var ignore = ":not([data-pjax-ignore]):not([href^='#']):not([href^='javascript:'])";
 
         doc.on("submit", "form" + ignore, pjaxRequest);
         doc.on("click",  "a" + ignore, pjaxRequest);
+
+        var firstUrl = String(window.location),
+            source = document.documentElement.outerHTML;
+
+        if (!source) {
+            return;
+        }
+
+        $(function () {
+            w.history.replaceState({
+                "pjaxUrl": firstUrl,
+                "pjaxData": source
+            }, document.title, firstUrl.substring(host.length));
+        });
     };
 })(document, window, window.jQuery);

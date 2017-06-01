@@ -12,12 +12,13 @@
     left: 0;
     top: 0;
     width: 100%;
+    pointer-events: none;
 }
 .pjax-loader .pjax-progress {
-    height: 2px;
+    height: 4px;
     width: 0px;
     background-color: rgba(119, 182, 255, .9);
-    box-shadow: 0 0 2px rgba(0, 0, 0, .3);
-    -webkit-transition: width 3.5s ease;
-            transition: width 3.5s ease;
+    box-shadow: 0 0 2px rgba(0, 0, 0, .6);
+    -webkit-transition: width 3.5s ease, opacity 1s;
+            transition: width 3.5s ease, opacity 1s;
 }
