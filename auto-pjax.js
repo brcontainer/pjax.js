@@ -1,5 +1,5 @@
 /*
- * auto-pjax.js 0.0.3
+ * auto-pjax.js 0.0.5
  *
  * Copyright (c) 2017 Guilherme Nascimento (brcontainer@yahoo.com.br)
  *
@@ -16,17 +16,21 @@
     var pjax, xhr, container, loader, progress, updateHead, autoscroll, rootdoc,
         doc = $(d), head = $(d.head), host = w.location.protocol.replace(/:/g, "") + "://" + w.location.host;
 
+    var timerProgress;
+
     function showProgress(show) {
+        if (timerProgress) clearTimeout(timerProgress);
+
         if (show) {
             progress.css({ "display": "block", "width": "0%", "opacity": "1" });
 
-            setTimeout(function () {
+            timerProgress = setTimeout(function () {
                 progress.css("width", "90%");
             }, 1);
         } else {
             progress.css({ "opacity": "0", "width": "100%" });
 
-            setTimeout(function () {
+            timerProgress = setTimeout(function () {
                 progress.css("display", "none");
             }, 1010);
         }
