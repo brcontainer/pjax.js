@@ -1,5 +1,5 @@
 /*
- * auto-pjax.js 0.0.5
+ * auto-pjax.js 0.0.6
  *
  * Copyright (c) 2017 Guilherme Nascimento (brcontainer@yahoo.com.br)
  *
@@ -69,8 +69,6 @@
 
         tmp = null;
 
-        showProgress(false);
-
         doc.trigger("pjax.done", [url]);
     }
 
@@ -95,11 +93,15 @@
         opts.url = url;
 
         pjax = $.ajax(opts).done(function (data) {
+            showProgress(false);
+
             updateContainer(url, data, true, 0, 0);
+            doc.trigger("pjax.then", [url]);
         }).fail(function (xhr, status, error) {
             showProgress(false);
 
             doc.trigger("pjax.fail", [url, status, error]);
+            doc.trigger("pjax.then", [url]);
         });
     }
 
@@ -123,6 +125,7 @@
         if (!loader) {
             loader = $('<div class="pjax-loader"><div style="width: 1%" class="pjax-progress"></div></div>');
             progress = $(".pjax-progress", loader);
+            progress.css("display", "none");
             $(loader).insertBefore("body");
         }
 
@@ -145,7 +148,7 @@
         e.preventDefault();
 
         if (url === String(w.location) && method !== "POST") {
-            return;
+            return false;
         }
 
         pjaxLoad(url, method, data);
@@ -157,7 +160,7 @@
         opts = $.extend({
             "updateHead": false,
             "autoscroll": true,
-            "root": $(window)
+            "root": $(w)
         }, opts || {});
 
         rootdoc = opts.root;
@@ -169,8 +172,8 @@
         doc.on("submit", "form" + ignore, pjaxRequest);
         doc.on("click",  "a" + ignore, pjaxRequest);
 
-        var firstUrl = String(window.location),
-            source = document.documentElement.outerHTML;
+        var firstUrl = String(w.location),
+            source = d.documentElement.outerHTML;
 
         if (!source) {
             return;
@@ -180,7 +183,7 @@
             w.history.replaceState({
                 "pjaxUrl": firstUrl,
                 "pjaxData": source
-            }, document.title, firstUrl.substring(host.length));
+            }, d.title, firstUrl.substring(host.length));
         });
     };
 })(document, window, window.jQuery);
