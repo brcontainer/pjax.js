@@ -18,7 +18,7 @@ if (isset($_SERVER['HTTP_X_PJAX'])) {
         <li><a href="example-2.php">Example 2</a></li>
         <li><a href="example-3.php">Example 3</a></li>
     </ul>
-    <div class="pjax-container">
+    <div id="pjax-container">
         <h1>Example 1</h1>
 
         <p>Aliquam congue bibendum imperdiet. Duis ut turpis neque. Vestibulum condimentum dictum magna, non faucibus nunc rutrum nec. Pellentesque finibus felis vel turpis condimentum elementum. In nec lacus at purus facilisis efficitur. Donec non ligula in quam congue finibus quis vel lacus. Nulla eu fermentum odio. Quisque egestas luctus lacus nec iaculis. Cras molestie ex nec dictum ultricies. Proin maximus, odio eget eleifend porttitor, tortor eros fermentum massa, sed tristique massa sem sed eros. Aenean eu lacus ac quam tristique fermentum. Sed magna erat, egestas ac laoreet non, ornare at magna. Nulla feugiat elementum odio id accumsan.</p>
@@ -40,7 +40,7 @@ if (isset($_SERVER['HTTP_X_PJAX'])) {
     <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
     <script src="../auto-pjax.js"></script>
     <script>
-    $.autoPjax({ "updateHead": true });
+    $.autoPjax();
     </script>
 </body>
 </html>

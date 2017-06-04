@@ -1015,26 +1015,133 @@ body .markdown-body
   }
 }
 </style><title>README</title></head><body><article class="markdown-body"><h2 id="automatic-pjax"><a name="user-content-automatic-pjax" href="#automatic-pjax" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Automatic Pjax</h2>
-<p>The <code>auto-pjax.js</code> is a jQuery plugin that uses ajax, <code>pushState</code> and automatically detects links and forms, for configure page you need use <code>pjax-container</code> class in all pages, example:</p>
-<pre><code class="html">&lt;div class=&quot;pjax-container&quot;&gt;
+<p>The <code>auto-pjax.js</code> is a jQuery plugin that uses ajax, <code>pushState</code> and automatically detects links and forms, for configure page you need use <code>id="pjax-container"</code> in all pages, example:</p>
+<pre><code class="html">&lt;div id=&quot;pjax-container&quot;&gt;
     ...
 &lt;/div&gt;
 </code></pre>
 
-<p>Pjax load all content from pages, but uses only contents from first element using <code>pjax-container</code>, if you need don&rsquo;t Pjax in a spefic link or form define <code>data-pjax-ignore</code> attribute , example:</p>
+<p>Pjax load all content from pages, but uses only contents from first element using <code>pjax-container</code>, if you don&rsquo;t need the Pjax in a spefic link or form then use <code>data-pjax-ignore</code> attribute, example:</p>
 <pre><code class="html">&lt;p&gt;
     Hello world!
     Example &lt;a data-pjax-ignore href=&quot;/page.html&quot;&gt;page&lt;/a&gt;.
 &lt;/p&gt;
 </code></pre>
 
+<h2 id="support"><a name="user-content-support" href="#support" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Support</h2>
+<p>The <code>auto-pjax.js</code> support links, forms with method <code>GET</code>, forms with method <code>POST</code> and support files and multiple files (<code>&lt;input type="file" multiple&gt;</code>).</p>
+<p>Requirements:</p>
+<ul>
+<li><code>DOMParser</code></li>
+<li><code>pushState</code>, <code>replaceState</code> and <code>popstate</code> (DOM History manipulation)</li>
+<li><code>FormData</code> (XMLHttpRequest Level 2) - if need use PJAX with <code>&lt;form&gt;</code></li>
+</ul>
 <h2 id="usage"><a name="user-content-usage" href="#usage" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Usage</h2>
 <p>For use:</p>
 <pre><code class="js">$.autoPjax();
 </code></pre>
 
-<p>If need update head tag (default is <code>false</code>):</p>
-<pre><code class="js">$.autoPjax({ &quot;updatehead&quot;: true });
+<p>For change configs use like this:</p>
+<pre><code class="js">$.autoPjax({
+    selector: [ &quot;#my-container&quot; ], //Change container element
+    scrollLeft: -1, //Disable autoscroll
+    scrollTop: -1 //Disable autoscroll
+});
+</code></pre>
+
+<h2 id="pjax-configs"><a name="user-content-pjax-configs" href="#pjax-configs" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Pjax configs</h2>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>type</th>
+<th>default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>selector:</code></td>
+<td><code>array</code></td>
+<td><code>[ "#pjax-container" ]</code></td>
+<td>Informs which elements to update on the page</td>
+</tr>
+<tr>
+<td><code>updatehead:</code></td>
+<td><code>bool</code></td>
+<td><code>true</code></td>
+<td>The &ldquo;autopjax&rdquo; has an intelligent update system that helps avoid the &ldquo;blink&rdquo; effect, because instead of updating everything it only updates what has been changed, however if you are sure that nothing will change as you page, you can set it to false &ldquo;, The only one that will continue to be updated will be the <code>&lt;title&gt;</code> tag.</td>
+</tr>
+<tr>
+<td><code>scrollLeft:</code></td>
+<td><code>number</code></td>
+<td><code>0</code></td>
+<td>After loading a page via PJAX you can define where scrollLeft should scroll.</td>
+</tr>
+<tr>
+<td><code>scrollTop:</code></td>
+<td><code>number</code></td>
+<td><code>0</code></td>
+<td>After loading a page via PJAX you can define where scrollTop should scroll.</td>
+</tr>
+<tr>
+<td><code>loader:</code></td>
+<td><code>bool</code></td>
+<td><code>true</code></td>
+<td>Adds the native Pjax loader, if you want to create a loader of your own, set it to <code>false</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>If need overwrite properties for specific link or form you can config using HTML attributes:</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>equivalent</th>
+<th>example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>data-pjax-selector</code></td>
+<td><code>selector:</code></td>
+<td><code>&lt;a href="..." data-pjax-selector="[ &amp;quot;#foo&amp;quot;, &amp;quot;#bar&amp;quot;, &amp;quot;#baz&amp;quot; ]"</code></td>
+</tr>
+<tr>
+<td><code>data-pjax-updatehead</code></td>
+<td><code>updatehead:</code></td>
+<td><code>&lt;a href="..." data-pjax-updatehead="false"</code></td>
+</tr>
+<tr>
+<td><code>data-pjax-scroll-left</code></td>
+<td><code>scrollLeft:</code></td>
+<td><code>&lt;form action="..." data-pjax-scroll-left="10"</code></td>
+</tr>
+<tr>
+<td><code>data-pjax-scroll-top</code></td>
+<td><code>scrollRight:</code></td>
+<td><code>&lt;form action="..." data-pjax-scroll-right="-1"</code></td>
+</tr>
+<tr>
+<td><code>data-pjax-loader</code></td>
+<td><code>loader:</code></td>
+<td><code>&lt;a href="..." data-pjax-loader="false"</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="update-two-elements-or-more"><a name="user-content-update-two-elements-or-more" href="#update-two-elements-or-more" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Update two elements (or more)</h2>
+<p>You can change the element you want to update or even add more elements, eg.:</p>
+<pre><code class="html">&lt;div id=&quot;navbar&quot;&gt;
+    ...
+&lt;/div&gt;
+&lt;div id=&quot;my-container&quot;&gt;
+    ...
+&lt;/div&gt;
+&lt;script&gt;
+$.autoPjax({
+    selector: [ &quot;#navbar&quot;, &quot;#my-container&quot; ] //Change containers element
+});
+&lt;/script&gt;
 </code></pre>
 
 <h2 id="pjax-api"><a name="user-content-pjax-api" href="#pjax-api" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Pjax API</h2>
@@ -1042,28 +1149,111 @@ body .markdown-body
 <thead>
 <tr>
 <th>Method</th>
-<th>Equivalent</th>
+<th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>$(document).on("pjax.initiate", function(url) {...});</code></td>
+<td><code>$.autoPjax("remove");</code></td>
+<td>Remove PJAX requests and events</td>
+</tr>
+<tr>
+<td><code>$(document).on("pjax.initiate", function(event, url, config) {...});</code></td>
 <td>Trigged when clicked in a link or submit a form</td>
 </tr>
 <tr>
-<td><code>$(document).on("pjax.done", function(url) {...});</code></td>
+<td><code>$(document).on("pjax.done", function(event, url) {...});</code></td>
 <td>Trigged when page loaded using <code>$.jax</code></td>
 </tr>
 <tr>
-<td><code>$(document).on("pjax.fail", function(url, status, error) {...});</code></td>
+<td><code>$(document).on("pjax.fail", function(event, url, status, error) {...});</code></td>
 <td>Trigged when page failed to load, <code>status</code> return HTTP code and <code>error</code> return message error</td>
+</tr>
+<tr>
+<td><code>$(document).on("pjax.then", function(event, url) {...});</code></td>
+<td>Executes every time a request is completed, even if it fails or succeeds.</td>
 </tr>
 </tbody>
 </table>
-<h2 id="support"><a name="user-content-support" href="#support" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Support</h2>
-<p>The <code>auto-pjax.js</code> support links, forms with method GET, forms with method POST and support files and multiple files (<code>&lt;input type="file" multiple&gt;</code>).</p>
-<p>Requirements:</p>
-<ul>
-<li><code>DOMParser</code></li>
-<li>DOM History manipulation</li>
-</ul></article></body></html>
+<p>You can change configs in <code>pjax.initiate</code> event, example:</p>
+<pre><code class="html">&lt;div id=&quot;pjax-container&quot;&gt;
+    &lt;div id=&quot;filter&quot;&gt;
+        &lt;form&gt;
+            ...
+        &lt;/form&gt;
+    &lt;/div&gt;
+    &lt;div id=&quot;search-container&quot;&gt;
+        ...
+    &lt;/div&gt;
+&lt;/div&gt;
+&lt;script&gt;
+$.autoPjax();
+
+$(document).on(&quot;pjax.initiate&quot;, function (e, url, configs) {
+    if (url.indexOf(&quot;/search/&quot;) === 0 &amp;&amp; window.location.href.indexOf(&quot;/search/&quot;) === 0) {
+        configs.selectors = [ &quot;#search-container&quot; ];
+    }
+});
+&lt;/script&gt;
+</code></pre>
+
+<p>If you are on a product search page and are doing a new search instead of updating the entire container will only update the element where the products are, other pages will continue to update the entire container.</p>
+<h2 id="pjax-in-server-side"><a name="user-content-pjax-in-server-side" href="#pjax-in-server-side" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Pjax in server-side</h2>
+<p>It is possible to detect if the request came from the PJAX using the request headers:</p>
+<table>
+<thead>
+<tr>
+<th>Header</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>X-PJAX</code></td>
+<td>Indicates that the page was requested via PJAX</td>
+</tr>
+<tr>
+<td><code>X-PJAX-URL</code></td>
+<td>Inform the entire url of the requested page</td>
+</tr>
+<tr>
+<td><code>X-PJAX-Container</code></td>
+<td>Informs the selectors used</td>
+</tr>
+</tbody>
+</table>
+<p>Example using PHP:</p>
+<pre><code class="php">if (isset($_SERVER['HTTP_X_PJAX'])) {
+    echo 'You using pjax';
+}
+</code></pre>
+
+<h2 id="custom-loader-with-pjax"><a name="user-content-custom-loader-with-pjax" href="#custom-loader-with-pjax" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Custom loader with PJAX</h2>
+<p>You can custom CSS, example change color and size, put in new CSS file or <code>&lt;style&gt;</code> tag:</p>
+<pre><code class="css">.pjax-loader .pjax-progress {
+    height: 6px;
+    background-color: blue;
+}
+</code></pre>
+
+<p>If you need custom &ldquo;more&rdquo;, first remove default loader:</p>
+<pre><code class="javascript">$.autoPjax({
+    &quot;loader&quot;: false
+});
+</code></pre>
+
+<p>And after use <code>pjax.initiate</code> and <code>pjax.then</code> events:</p>
+<pre><code class="javascript">$(document).on(&quot;pjax.initiate&quot;, function () {
+    $(&quot;.my-custom-loader&quot;).css(&quot;display&quot;, &quot;block&quot;);
+});
+
+$(document).on(&quot;pjax.then&quot;, function () {
+    $(&quot;.my-custom-loader&quot;).css(&quot;display&quot;, &quot;none&quot;);
+});
+</code></pre>
+
+<p>HTML:</p>
+<pre><code class="html">&lt;div class=&quot;my-custom-loader&quot;&gt;
+    &lt;img src=&quot;loader.gif&quot;&gt;
+&lt;/div&gt;
+</code></pre></article></body></html>

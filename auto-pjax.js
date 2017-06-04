@@ -1,5 +1,5 @@
 /*
- * auto-pjax.js 0.0.6
+ * auto-pjax.js 0.1.0
  *
  * Copyright (c) 2017 Guilherme Nascimento (brcontainer@yahoo.com.br)
  *
@@ -10,79 +10,139 @@
     "use strict";
 
     if (!w.history.pushState || !w.DOMParser || !/^http(|s):$/.test(w.location.protocol)) {
+        $.autoPjax = function () {};
         return;
     }
 
-    var pjax, xhr, container, loader, progress, updateHead, autoscroll, rootdoc,
-        doc = $(d), head = $(d.head), host = w.location.protocol.replace(/:/g, "") + "://" + w.location.host;
+    var config, xhr, timer, loader, doc = $(d), started = false,
+        host = w.location.protocol.replace(/:/g, "") + "://" + w.location.host;
 
-    var timerProgress;
+    function isUnsigned(value) {
+        return /^\d+$/.test(value);
+    }
 
-    function showProgress(show) {
-        if (timerProgress) clearTimeout(timerProgress);
+    function showLoader() {
+        if (timer) clearTimeout(timer);
 
-        if (show) {
-            progress.css({ "display": "block", "width": "0%", "opacity": "1" });
+        if (!loader) {
+            loader = $('<div class="pjax-loader pjax-hide"><div class="pjax-progress"></div></div>');
+            $(loader).insertBefore("body");
+        }
 
-            timerProgress = setTimeout(function () {
-                progress.css("width", "90%");
-            }, 1);
-        } else {
-            progress.css({ "opacity": "0", "width": "100%" });
+        loader.removeClass("pjax-hide");
+        loader.removeClass("pjax-end");
+        loader.addClass("pjax-start");
 
-            timerProgress = setTimeout(function () {
-                progress.css("display", "none");
-            }, 1010);
+        timer = setTimeout(function () {
+            loader.addClass("pjax-inload");
+        }, 10);
+    }
+
+    function hideLoader() {
+        if (timer) clearTimeout(timer);
+
+        loader.addClass("pjax-end");
+
+        timer = setTimeout(function () {
+            loader.removeClass("pjax-inload");
+            loader.addClass("pjax-hide");
+        }, 1000);
+    }
+
+    function pjaxUpdateHead(head) {
+        var nodes = [], content, index;
+
+        $("*", head).each(function () {
+            if (this.tagName !== "TITLE") {
+                nodes.push(this.outerHTML);
+            }
+        });
+
+        $("*", d.head).each(function () {
+            if (this.tagName !== "TITLE") {
+                content = this.outerHTML;
+
+                index = nodes.indexOf(content);
+
+                if (index === -1) {
+                    $(this).remove();
+                } else {
+                    nodes.splice(index, 1);
+                }
+            }
+        });
+
+        for (var i = 0, j = nodes.length; i < j; i++) {
+            $(nodes[i]).appendTo("head");
         }
     }
 
-    function updateContainer(url, data, changestate)
-    {
-        var tmp = (new DOMParser).parseFromString(data, "text/html");
+    function pjaxAttributes(el) {
+        var current, cc, val,
+            cfg = $.extend(config, {}),
+            attrs = [ "selectors", "updatehead", "loader", "scroll-left", "scroll-right" ];
 
-        $(':focus').blur();
+        for (var i = attrs.length - 1; i >= 0; i--) {
+            current = attrs[i];
 
-        var title = $("title", tmp).text() || "";
+            val = el.data("pjax-" + current);
 
-        if (changestate) {
-            w.history.pushState({
-                "pjaxUrl": url,
-                "pjaxData": data
-            }, title, url.substring(host.length));
+            if (val) {
+                cc = current.toLowerCase().replace(/\-([a-z])/g, function (a, b) {
+                    return b.toUpperCase();
+                });
+
+                cfg[cc] = val;
+            }
         }
 
-        //Update head
-        if (updateHead) {
-            head.html($(tmp.head).html());
-        }
-
-        //Update title
-        d.title = title;
-
-        //Update container
-        container.html( $(".pjax-container", tmp).html() || "" );
-
-        if (autoscroll && rootdoc) {
-            rootdoc.scrollLeft(0);
-            rootdoc.scrollTop(0);
-        }
-
-        tmp = null;
-
-        doc.trigger("pjax.done", [url]);
+        return cfg;
     }
 
-    function pjaxLoad(url, method, data)
-    {
-        if (pjax) {
-            pjax.abort();
+    function pjaxParse(url, data, cfg) {
+        var tmp = (new DOMParser).parseFromString(data, "text/html"),
+            title = tmp.title || "",
+            s = cfg.selectors;
+
+        w.history.pushState({
+            "pjaxUrl": url,
+            "pjaxData": data,
+            "pjaxConfig": cfg
+        }, title, url.substring(host.length));
+
+        if (config.updatehead) pjaxUpdateHead(tmp.head);
+
+        if (cfg.title) {
+            doc.title = title;
         }
 
-        doc.trigger("pjax.initiate", [url]);
+        for (var i = 0, j = s.length; i < j; i++) {
+            $(s[i]).html( $(s[i], tmp.body).html() || "" );
+        }
 
-        showProgress(true);
+        if (isUnsigned(cfg.scrollLeft)) doc.scrollLeft(cfg.scrollLeft);
+        if (isUnsigned(cfg.scrollTop)) doc.scrollTop(cfg.scrollTop);
 
-        var opts = { "headers": { "X-PJAX": "true" } };
+        tmp = s = null;
+    }
+
+    function pjaxLoad(url, method, el, data) {
+        if (xhr) {
+            xhr.abort();
+        }
+
+        var cfg = pjaxAttributes($(el));
+
+        doc.trigger("pjax.initiate", [url, cfg]);
+
+        var opts = {
+            "dataType": "text",
+            "headers": {
+                "X-PJAX-Container": cfg.selectors.join(","),
+                "X-PJAX-URL": url,
+                "X-PJAX": "true"
+            }
+        };
 
         if (method && data) {
             opts.data = data;
@@ -92,43 +152,17 @@
 
         opts.url = url;
 
-        pjax = $.ajax(opts).done(function (data) {
-            showProgress(false);
-
-            updateContainer(url, data, true, 0, 0);
+        xhr = $.ajax(opts).done(function (data) {
+            pjaxParse(url, data, cfg);
+            doc.trigger("pjax.done", [url]);
             doc.trigger("pjax.then", [url]);
         }).fail(function (xhr, status, error) {
-            showProgress(false);
-
             doc.trigger("pjax.fail", [url, status, error]);
             doc.trigger("pjax.then", [url]);
         });
     }
 
-    w.addEventListener("popstate", function (e) {
-        if (e.state && e.state.pjaxUrl) {
-            updateContainer(e.state.pjaxUrl, e.state.pjaxData, false);
-        } else {
-            pjaxLoad(String(w.location));
-        }
-    });
-
     function pjaxRequest(e) {
-
-        container = container || $(".pjax-container");
-
-        if (!container.length) {
-            container = null;
-            return;
-        }
-
-        if (!loader) {
-            loader = $('<div class="pjax-loader"><div style="width: 1%" class="pjax-progress"></div></div>');
-            progress = $(".pjax-progress", loader);
-            progress.css("display", "none");
-            $(loader).insertBefore("body");
-        }
-
         var method, data, url = this.nodeName === "FORM" ? this.action : this.href;
 
         if (url.indexOf(host) !== 0) {
@@ -151,39 +185,67 @@
             return false;
         }
 
-        pjaxLoad(url, method, data);
+        pjaxLoad(url, method, this, data);
 
         return false;
     }
 
+    function restoreState (e) {
+        if (e.state && e.state.pjaxUrl) {
+            pjaxParse(e.state.pjaxUrl, e.state.pjaxData, e.state.pjaxConfig);
+        } else {
+            pjaxLoad(String(w.location));
+        }
+    }
+
     $.autoPjax = function (opts) {
-        opts = $.extend({
-            "updateHead": false,
-            "autoscroll": true,
-            "root": $(w)
-        }, opts || {});
+        var ignoreform = ":not([data-pjax-ignore]):not([action^='javascript:'])";
+        var ignorelink = ":not([data-pjax-ignore]):not([href^='#']):not([href^='javascript:'])";
 
-        rootdoc = opts.root;
-        updateHead = !!opts.updateHead;
-        autoscroll = !!opts.autoscroll;
+        if (opts === "remove") {
+            if (config) {
+                return;
+            }
 
-        var ignore = ":not([data-pjax-ignore]):not([href^='#']):not([href^='javascript:'])";
+            if (config.load) {
+                doc.off("pjax.initiate", showLoader);
+                doc.off("pjax.then", hideLoader);
+            }
 
-        doc.on("submit", "form" + ignore, pjaxRequest);
-        doc.on("click",  "a" + ignore, pjaxRequest);
+            doc.off("submit", "form" + ignoreform, pjaxRequest);
+            doc.off("click",  "a" + ignorelink, pjaxRequest);
 
-        var firstUrl = String(w.location),
-            source = d.documentElement.outerHTML;
+            w.removeEventListener("popstate", restoreState);
 
-        if (!source) {
             return;
         }
 
+        config = $.extend({
+            "selectors": [ "#pjax-container" ],
+            "updatehead": true,
+            "scrollLeft": 0,
+            "scrollTop": 0,
+            "loader": true
+        }, opts);
+
+        if (config.loader) {
+            doc.on("pjax.initiate", showLoader);
+            doc.on("pjax.then", hideLoader);
+        }
+
+        doc.on("submit", "form" + ignoreform, pjaxRequest);
+        doc.on("click",  "a" + ignorelink, pjaxRequest);
+
+        var url = String(w.location);
+
+        w.addEventListener("popstate", restoreState);
+
         $(function () {
             w.history.replaceState({
-                "pjaxUrl": firstUrl,
-                "pjaxData": source
-            }, d.title, firstUrl.substring(host.length));
+                "pjaxUrl": url,
+                "pjaxData": d.documentElement.outerHTML,
+                "pjaxConfig": config
+            }, d.title, url.substring(host.length));
         });
     };
 })(document, window, window.jQuery);

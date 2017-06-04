@@ -1,5 +1,5 @@
 /*
- * auto-pjax.js 0.0.6
+ * auto-pjax.js 0.1.0
  *
  * Copyright (c) 2017 Guilherme Nascimento (brcontainer@yahoo.com.br)
  *
@@ -17,8 +17,20 @@
 .pjax-loader .pjax-progress {
     height: 4px;
     width: 0px;
-    background-color: rgba(119, 182, 255, .9);
-    box-shadow: 0 0 2px rgba(0, 0, 0, .6);
-    -webkit-transition: width 3.5s ease, opacity 1s;
-            transition: width 3.5s ease, opacity 1s;
+    opacity: 1;
+    background-color: rgb(119, 182, 255);
+}
+.pjax-start .pjax-progress {
+    -webkit-transition: width 1.5s ease, opacity 0.8s ease;
+            transition: width 1.5s ease, opacity 0.8s ease;
+}
+.pjax-inload .pjax-progress {
+    width: 95%;
+}
+.pjax-end .pjax-progress {
+    width: 100%;
+    opacity: 0.01;
+}
+.pjax-hide {
+    display: none;
 }
