@@ -1,5 +1,5 @@
 /*
- * auto-pjax.js 0.1.0
+ * auto-pjax.js 0.1.1
  *
  * Copyright (c) 2017 Guilherme Nascimento (brcontainer@yahoo.com.br)
  *
@@ -99,16 +99,24 @@
         return cfg;
     }
 
-    function pjaxParse(url, data, cfg) {
+    function pjaxParse(url, data, cfg, state) {
         var tmp = (new DOMParser).parseFromString(data, "text/html"),
             title = tmp.title || "",
             s = cfg.selectors;
 
-        w.history.pushState({
-            "pjaxUrl": url,
-            "pjaxData": data,
-            "pjaxConfig": cfg
-        }, title, url.substring(host.length));
+        if (state) {
+            var c = {
+                "pjaxUrl": url,
+                "pjaxData": data,
+                "pjaxConfig": cfg
+            };
+
+            if (state === 1) {
+                w.history.pushState(c, title, url.substring(host.length));
+            } else {
+                w.history.replaceState(c, title, url.substring(host.length));
+            }
+        }
 
         if (config.updatehead) pjaxUpdateHead(tmp.head);
 
@@ -126,7 +134,7 @@
         tmp = s = null;
     }
 
-    function pjaxLoad(url, method, el, data) {
+    function pjaxLoad(url, state, method, el, data) {
         if (xhr) {
             xhr.abort();
         }
@@ -153,7 +161,7 @@
         opts.url = url;
 
         xhr = $.ajax(opts).done(function (data) {
-            pjaxParse(url, data, cfg);
+            pjaxParse(url, data, cfg, state);
             doc.trigger("pjax.done", [url]);
             doc.trigger("pjax.then", [url]);
         }).fail(function (xhr, status, error) {
@@ -185,16 +193,16 @@
             return false;
         }
 
-        pjaxLoad(url, method, this, data);
+        pjaxLoad(url, 1, method, this, data);
 
         return false;
     }
 
     function restoreState (e) {
         if (e.state && e.state.pjaxUrl) {
-            pjaxParse(e.state.pjaxUrl, e.state.pjaxData, e.state.pjaxConfig);
+            pjaxParse(e.state.pjaxUrl, e.state.pjaxData, e.state.pjaxConfig, false);
         } else {
-            pjaxLoad(String(w.location));
+            pjaxLoad(String(w.location), 2);
         }
     }
 
