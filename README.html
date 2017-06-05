@@ -1043,7 +1043,7 @@ body .markdown-body
 
 <p>For change configs use like this:</p>
 <pre><code class="js">$.autoPjax({
-    selector: [ &quot;#my-container&quot; ], //Change container element
+    containers: [ &quot;#my-container&quot; ], //Change container element
     scrollLeft: -1, //Disable autoscroll
     scrollTop: -1 //Disable autoscroll
 });
@@ -1061,7 +1061,7 @@ body .markdown-body
 </thead>
 <tbody>
 <tr>
-<td><code>selector:</code></td>
+<td><code>containers:</code></td>
 <td><code>array</code></td>
 <td><code>[ "#pjax-container" ]</code></td>
 <td>Informs which elements to update on the page</td>
@@ -1103,9 +1103,9 @@ body .markdown-body
 </thead>
 <tbody>
 <tr>
-<td><code>data-pjax-selector</code></td>
-<td><code>selector:</code></td>
-<td><code>&lt;a href="..." data-pjax-selector="[ &amp;quot;#foo&amp;quot;, &amp;quot;#bar&amp;quot;, &amp;quot;#baz&amp;quot; ]"</code></td>
+<td><code>data-pjax-containers</code></td>
+<td><code>containers:</code></td>
+<td><code>&lt;a href="..." data-pjax-containers="[ &amp;quot;#foo&amp;quot;, &amp;quot;#bar&amp;quot;, &amp;quot;#baz&amp;quot; ]"</code></td>
 </tr>
 <tr>
 <td><code>data-pjax-updatehead</code></td>
@@ -1139,7 +1139,7 @@ body .markdown-body
 &lt;/div&gt;
 &lt;script&gt;
 $.autoPjax({
-    selector: [ &quot;#navbar&quot;, &quot;#my-container&quot; ] //Change containers element
+    containers: [ &quot;#navbar&quot;, &quot;#my-container&quot; ] //Change containers element
 });
 &lt;/script&gt;
 </code></pre>
@@ -1191,7 +1191,7 @@ $.autoPjax();
 
 $(document).on(&quot;pjax.initiate&quot;, function (e, url, configs) {
     if (url.indexOf(&quot;/search/&quot;) === 0 &amp;&amp; window.location.href.indexOf(&quot;/search/&quot;) === 0) {
-        configs.selectors = [ &quot;#search-container&quot; ];
+        configs.containers = [ &quot;#search-container&quot; ];
     }
 });
 &lt;/script&gt;
@@ -1218,7 +1218,7 @@ $(document).on(&quot;pjax.initiate&quot;, function (e, url, configs) {
 </tr>
 <tr>
 <td><code>X-PJAX-Container</code></td>
-<td>Informs the selectors used</td>
+<td>Informs the container selectors used</td>
 </tr>
 </tbody>
 </table>

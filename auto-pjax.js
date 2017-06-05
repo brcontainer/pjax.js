@@ -1,12 +1,12 @@
 /*
- * auto-pjax.js 0.1.3
+ * auto-pjax.js 0.2.0
  *
  * Copyright (c) 2017 Guilherme Nascimento (brcontainer@yahoo.com.br)
  *
  * Released under the MIT license
  */
 
-(function (d, w, $) {
+(function (d, w, $, u) {
     "use strict";
 
     if (!w.history.pushState || !w.DOMParser || !/^http(|s):$/.test(w.location.protocol)) {
@@ -77,7 +77,7 @@
 
     function pjaxAttributes(el) {
         var current, cc, val, cfg = $.extend(config, {}),
-            attrs = [ "selectors", "updatehead", "loader", "scroll-left", "scroll-right" ];
+            attrs = [ "containers", "updatehead", "loader", "scroll-left", "scroll-right" ];
 
         for (var i = attrs.length - 1; i >= 0; i--) {
             current = attrs[i];
@@ -98,7 +98,7 @@
 
     function pjaxParse(url, data, cfg, state) {
         var tmp = (new DOMParser).parseFromString(data, "text/html"),
-            title = tmp.title || "", s = cfg.selectors;
+            title = tmp.title || "", s = cfg.containers;
 
         if (state) {
             var c = {
@@ -142,7 +142,7 @@
         var opts = {
             "dataType": "text",
             "headers": {
-                "X-PJAX-Container": cfg.selectors.join(","),
+                "X-PJAX-Container": cfg.containers.join(","),
                 "X-PJAX-URL": url,
                 "X-PJAX": "true"
             }
@@ -202,7 +202,7 @@
         return false;
     }
 
-    function restoreState (e) {
+    function restoreState(e) {
         if (e.state && e.state.pjaxUrl) {
             pjaxAbort();
             pjaxParse(e.state.pjaxUrl, e.state.pjaxData, e.state.pjaxConfig, false);
@@ -229,11 +229,13 @@
             w.removeEventListener("unload", pjaxAbort);
             w.removeEventListener("popstate", restoreState);
 
+            config = u;
+
             return;
         }
 
         config = $.extend({
-            "selectors": [ "#pjax-container" ],
+            "containers": [ "#pjax-container" ],
             "updatehead": true,
             "scrollLeft": 0,
             "scrollTop": 0,
@@ -248,12 +250,12 @@
         doc.on("submit", "form" + ignoreform, pjaxRequest);
         doc.on("click",  "a" + ignorelink, pjaxRequest);
 
-        var url = String(w.location);
-
         w.addEventListener("unload", pjaxAbort);
         w.addEventListener("popstate", restoreState);
 
         $(function () {
+            var url = String(w.location);
+
             w.history.replaceState({
                 "pjaxUrl": url,
                 "pjaxData": d.documentElement.outerHTML,

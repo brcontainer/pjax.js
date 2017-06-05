@@ -39,7 +39,7 @@ For change configs use like this:
 
 ```js
 $.autoPjax({
-    selector: [ "#my-container" ], //Change container element
+    containers: [ "#my-container" ], //Change container element
     scrollLeft: -1, //Disable autoscroll
     scrollTop: -1 //Disable autoscroll
 });
@@ -49,7 +49,7 @@ $.autoPjax({
 
 Property | type | default | Description
 --- | --- | --- | ---
-`selector:` | `array` | `[ "#pjax-container" ]` | Informs which elements to update on the page
+`containers:` | `array` | `[ "#pjax-container" ]` | Informs which elements to update on the page
 `updatehead:` | `bool` | `true` | The "autopjax" has an intelligent update system that helps avoid the "blink" effect, because instead of updating everything it only updates what has been changed, however if you are sure that nothing will change as you page, you can set it to false ", The only one that will continue to be updated will be the `<title>` tag.
 `scrollLeft:` | `number` | `0` | After loading a page via PJAX you can define where scrollLeft should scroll.
 `scrollTop:` | `number` | `0` | After loading a page via PJAX you can define where scrollTop should scroll.
@@ -59,7 +59,7 @@ If need overwrite properties for specific link or form you can config using HTML
 
 Property | equivalent | example
 --- | --- | ---
-`data-pjax-selector` | `selector:` | `<a href="..." data-pjax-selector="[ &quot;#foo&quot;, &quot;#bar&quot;, &quot;#baz&quot; ]"`
+`data-pjax-containers` | `containers:` | `<a href="..." data-pjax-containers="[ &quot;#foo&quot;, &quot;#bar&quot;, &quot;#baz&quot; ]"`
 `data-pjax-updatehead` | `updatehead:` | `<a href="..." data-pjax-updatehead="false"`
 `data-pjax-scroll-left` | `scrollLeft:` | `<form action="..." data-pjax-scroll-left="10"`
 `data-pjax-scroll-top` | `scrollRight:` | `<form action="..." data-pjax-scroll-right="-1"`
@@ -78,7 +78,7 @@ You can change the element you want to update or even add more elements, eg.:
 </div>
 <script>
 $.autoPjax({
-    selector: [ "#navbar", "#my-container" ] //Change containers element
+    containers: [ "#navbar", "#my-container" ] //Change containers element
 });
 </script>
 ```
@@ -111,7 +111,7 @@ $.autoPjax();
 
 $(document).on("pjax.initiate", function (e, url, configs) {
     if (url.indexOf("/search/") === 0 && window.location.href.indexOf("/search/") === 0) {
-        configs.selectors = [ "#search-container" ];
+        configs.containers = [ "#search-container" ];
     }
 });
 </script>
@@ -127,7 +127,7 @@ Header | Description
 --- | ---
 `X-PJAX` | Indicates that the page was requested via PJAX
 `X-PJAX-URL` | Inform the entire url of the requested page
-`X-PJAX-Container` | Informs the selectors used
+`X-PJAX-Container` | Informs the container selectors used
 
 Example using PHP:
 
