@@ -1,5 +1,5 @@
 /*
- * auto-pjax.js 0.1.2
+ * auto-pjax.js 0.1.3
  *
  * Copyright (c) 2017 Guilherme Nascimento (brcontainer@yahoo.com.br)
  *
@@ -14,7 +14,7 @@
         return;
     }
 
-    var config, xhr, timer, loader, doc = $(d), started = false,
+    var config, xhr, timer, loader, started = false, doc = $(d),
         host = w.location.protocol.replace(/:/g, "") + "://" + w.location.host;
 
     function isUnsigned(value) {
@@ -26,7 +26,7 @@
 
         if (!loader) {
             loader = $('<div class="pjax-loader pjax-hide"><div class="pjax-progress"></div></div>');
-            $(loader).insertBefore("body");
+            loader.insertBefore("body");
         }
 
         loader.removeClass("pjax-hide");
@@ -53,9 +53,7 @@
         var nodes = [], content, index;
 
         $("*", head).each(function () {
-            if (this.tagName !== "TITLE") {
-                nodes.push(this.outerHTML);
-            }
+            if (this.tagName !== "TITLE") nodes.push(this.outerHTML);
         });
 
         $("*", d.head).each(function () {
@@ -78,8 +76,7 @@
     }
 
     function pjaxAttributes(el) {
-        var current, cc, val,
-            cfg = $.extend(config, {}),
+        var current, cc, val, cfg = $.extend(config, {}),
             attrs = [ "selectors", "updatehead", "loader", "scroll-left", "scroll-right" ];
 
         for (var i = attrs.length - 1; i >= 0; i--) {
@@ -101,8 +98,7 @@
 
     function pjaxParse(url, data, cfg, state) {
         var tmp = (new DOMParser).parseFromString(data, "text/html"),
-            title = tmp.title || "",
-            s = cfg.selectors;
+            title = tmp.title || "", s = cfg.selectors;
 
         if (state) {
             var c = {
@@ -120,9 +116,7 @@
 
         if (config.updatehead) pjaxUpdateHead(tmp.head);
 
-        if (cfg.title) {
-            doc.title = title;
-        }
+        if (cfg.title) doc.title = title;
 
         for (var i = 0, j = s.length; i < j; i++) {
             $(s[i]).html( $(s[i], tmp.body).html() || "" );
@@ -134,8 +128,12 @@
         tmp = s = null;
     }
 
-    function pjaxLoad(url, state, method, el, data, noprocess) {
+    function pjaxAbort() {
         if (xhr) xhr.abort();
+    }
+
+    function pjaxLoad(url, state, method, el, data, noprocess) {
+        pjaxAbort();
 
         var cfg = pjaxAttributes($(el));
 
@@ -173,16 +171,12 @@
         var method, data, noprocess = false,
             url = this.nodeName === "FORM" ? this.action : this.href;
 
-        if (url.indexOf(host) !== 0) {
-            return;
-        }
+        if (url.indexOf(host) !== 0) return;
 
         if (this.nodeName === "FORM") {
             method = String(this.method).toUpperCase();
 
-            if (method === "POST" && !w.FormData) {
-                return;
-            }
+            if (method === "POST" && !w.FormData) return;
 
             if (method !== "POST" || this.enctype !== "multipart/form-data") {
                 data = $(this).serialize();
@@ -202,17 +196,15 @@
 
         e.preventDefault();
 
-        if (url === String(w.location) && method !== "POST") {
-            return false;
-        }
+        if (url === String(w.location) && method !== "POST") return false;
 
         pjaxLoad(url, 1, method, this, data, noprocess);
-
         return false;
     }
 
     function restoreState (e) {
         if (e.state && e.state.pjaxUrl) {
+            pjaxAbort();
             pjaxParse(e.state.pjaxUrl, e.state.pjaxData, e.state.pjaxConfig, false);
         } else {
             pjaxLoad(String(w.location), 2);
@@ -224,9 +216,7 @@
         var ignorelink = ":not([data-pjax-ignore]):not([href^='#']):not([href^='javascript:'])";
 
         if (opts === "remove") {
-            if (config) {
-                return;
-            }
+            if (!config) return;
 
             if (config.load) {
                 doc.off("pjax.initiate", showLoader);
@@ -236,6 +226,7 @@
             doc.off("submit", "form" + ignoreform, pjaxRequest);
             doc.off("click",  "a" + ignorelink, pjaxRequest);
 
+            w.removeEventListener("unload", pjaxAbort);
             w.removeEventListener("popstate", restoreState);
 
             return;
@@ -259,6 +250,7 @@
 
         var url = String(w.location);
 
+        w.addEventListener("unload", pjaxAbort);
         w.addEventListener("popstate", restoreState);
 
         $(function () {
