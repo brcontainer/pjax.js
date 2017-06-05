@@ -25,7 +25,7 @@ Requirements:
 
 - `DOMParser`
 - `pushState`, `replaceState` and `popstate` (DOM History manipulation)
-- `FormData` (XMLHttpRequest Level 2) - if need use PJAX with `<form>`
+- `FormData` (XMLHttpRequest Level 2) - if need upload files using PJAX (`enctype="multipart/form-data"`)
 
 ## Usage
 

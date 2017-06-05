@@ -1,5 +1,5 @@
 <!DOCTYPE html><html><head><meta charset="utf-8"><style>body {
-  width: 45em;
+  max-width: 980px;
   border: 1px solid #ddd;
   outline: 1300px solid #fff;
   margin: 16px auto;
@@ -7,7 +7,7 @@
 
 body .markdown-body
 {
-  padding: 30px;
+  padding: 45px;
 }
 
 @font-face {
@@ -1014,7 +1014,28 @@ body .markdown-body
     page-break-after: avoid;
   }
 }
-</style><title>README</title></head><body><article class="markdown-body"><h3 id="example-pjax"><a name="user-content-example-pjax" href="#example-pjax" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Example PJAX</h3>
-<p>This example use PHP, but work any http server, for start example copy <code>auto-pjax.js</code> and <code>auto-pjax.css</code> to same folder and copy to Apache folder or use <a href="http://php.net/manual/en/features.commandline.webserver.php">PHP Built server</a>, type in terminal:</p>
-<pre><code>php -S localhost:8000
-</code></pre></article></body></html>
+</style><title>README</title></head><body><article class="markdown-body"><blockquote>
+<p>It&rsquo;s are webserver examples, should not be used in production</p>
+</blockquote>
+<h2 id="pjax-example-with-php"><a name="user-content-pjax-example-with-php" href="#pjax-example-with-php" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>PJAX example with PHP</h2>
+<p>After download you can copy files to Apache folder or can use <a href="http://php.net/manual/en/features.commandline.webserver.php">PHP Built server</a>, in terminal navigate to <code>www</code> folder and type this:</p>
+<pre><code>php -S 0.0.0.0:9000 SimpleServer.php
+</code></pre>
+
+<p>After navigate to <code>http://localhost:9000/</code> in your browser</p>
+<h2 id="pjax-example-with-python-simplehttpserver"><a name="user-content-pjax-example-with-python-simplehttpserver" href="#pjax-example-with-python-simplehttpserver" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>PJAX example with Python SimpleHTTPServer</h2>
+<p>In terminal navigate to <code>www</code> folder and type this:</p>
+<pre><code>python SimpleServer.py 9000
+</code></pre>
+
+<p>After navigate to <code>http://localhost:9000/</code> in your browser</p>
+<h2 id="pjax-example-with-java"><a name="user-content-pjax-example-with-java" href="#pjax-example-with-java" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>PJAX example with Java</h2>
+<p>First compile SimpleServer.java in terminal/cmd.exe (this is only necessary once):</p>
+<pre><code>javac SimpleServer.java
+</code></pre>
+
+<p>For execute server type in terminal/cmd:</p>
+<pre><code>java SimpleServer 9000
+</code></pre>
+
+<p>After navigate to <code>http://localhost:9000/</code> in your browser</p></article></body></html>

@@ -1,5 +1,5 @@
 /*
- * auto-pjax.js 0.1.1
+ * auto-pjax.js 0.1.2
  *
  * Copyright (c) 2017 Guilherme Nascimento (brcontainer@yahoo.com.br)
  *
@@ -134,10 +134,8 @@
         tmp = s = null;
     }
 
-    function pjaxLoad(url, state, method, el, data) {
-        if (xhr) {
-            xhr.abort();
-        }
+    function pjaxLoad(url, state, method, el, data, noprocess) {
+        if (xhr) xhr.abort();
 
         var cfg = pjaxAttributes($(el));
 
@@ -155,13 +153,14 @@
         if (method && data) {
             opts.data = data;
             opts.type = method;
-            opts.processData = false;
+
+            if (noprocess) opts.processData = false;
         }
 
         opts.url = url;
 
-        xhr = $.ajax(opts).done(function (data) {
-            pjaxParse(url, data, cfg, state);
+        xhr = $.ajax(opts).done(function (resp) {
+            pjaxParse(url, resp, cfg, state);
             doc.trigger("pjax.done", [url]);
             doc.trigger("pjax.then", [url]);
         }).fail(function (xhr, status, error) {
@@ -171,7 +170,8 @@
     }
 
     function pjaxRequest(e) {
-        var method, data, url = this.nodeName === "FORM" ? this.action : this.href;
+        var method, data, noprocess = false,
+            url = this.nodeName === "FORM" ? this.action : this.href;
 
         if (url.indexOf(host) !== 0) {
             return;
@@ -184,7 +184,20 @@
                 return;
             }
 
-            data = new FormData(this);
+            if (method !== "POST" || this.enctype !== "multipart/form-data") {
+                data = $(this).serialize();
+
+                if (method !== "POST") {
+                    url = url.replace(/\?.*/g, "");
+                    if (data) url += "?" + data;
+                    data = null;
+                }
+            } else if (w.FormData) {
+                data = new FormData(this);
+                noprocess = true;
+            } else {
+                return;
+            }
         }
 
         e.preventDefault();
@@ -193,7 +206,7 @@
             return false;
         }
 
-        pjaxLoad(url, 1, method, this, data);
+        pjaxLoad(url, 1, method, this, data, noprocess);
 
         return false;
     }

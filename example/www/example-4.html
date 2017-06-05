@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Form Data with Pjax</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="shortcut icon" href="https://meta.stackexchange.com/content/Sites/stackexchangemeta/img/favicon.ico">
+</head>
+<body>
+    <ul>
+        <li><a href="./">Home</a></li>
+        <li><a href="example-1.html">Example 1</a></li>
+        <li><a href="example-2.html">Example 2</a></li>
+        <li><a href="example-3.html"><strong>Example 3</strong></a></li>
+    </ul>
+    <div id="pjax-container">
+        <h1>Form Data with Pjax</h1>
+
+        <p>FORMDATA:</p>
+        <pre>{FORMDATA}</pre>
+    </div>
+
+    <link rel="stylesheet" type="text/css" href="assets/auto-pjax.css">
+
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+    <script src="assets/auto-pjax.js"></script>
+
+    <script>
+    $.autoPjax();
+    </script>
+</body>
+</html>

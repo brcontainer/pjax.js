@@ -1,9 +1,3 @@
-<?php
-if (isset($_SERVER['HTTP_X_PJAX'])) {
-    //Simulate slow page
-    sleep(2);
-}
-?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -14,9 +8,9 @@ if (isset($_SERVER['HTTP_X_PJAX'])) {
 <body>
     <ul>
         <li><a href="./">Home</a></li>
-        <li><a href="example-1.php">Example 1</a></li>
-        <li><a href="example-2.php">Example 2</a></li>
-        <li><a href="example-3.php"><strong>Example 3</strong></a></li>
+        <li><a href="example-1.html">Example 1</a></li>
+        <li><a href="example-2.html">Example 2</a></li>
+        <li><a href="example-3.html"><strong>Example 3</strong></a></li>
     </ul>
     <div id="pjax-container">
         <h1>Example 3</h1>
@@ -38,9 +32,11 @@ if (isset($_SERVER['HTTP_X_PJAX'])) {
         <p>Morbi interdum ipsum ut ornare efficitur. Phasellus aliquam maximus orci nec varius. Nullam eget feugiat justo, vitae lacinia nisl. Morbi feugiat nisl at augue placerat tincidunt eget quis sapien. Integer venenatis orci eu ante laoreet, eu consectetur massa accumsan. Aenean fermentum quam eu lectus aliquam cursus. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vivamus elementum venenatis lacus, dictum scelerisque dui accumsan vitae. Aliquam a luctus dui.</p>
     </div>
 
-    <link rel="stylesheet" type="text/css" href="../auto-pjax.css">
+    <link rel="stylesheet" type="text/css" href="assets/auto-pjax.css">
+
     <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
-    <script src="../auto-pjax.js"></script>
+    <script src="assets/auto-pjax.js"></script>
+
     <script>
     $.autoPjax();
     </script>
