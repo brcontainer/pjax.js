@@ -1,6 +1,6 @@
 ## Automatic Pjax
 
-The `auto-pjax.js` is a jQuery plugin that uses ajax, `pushState` and automatically detects links and forms, for configure page you need use `id="pjax-container"` in all pages, example:
+The `Pjax.js` is <s>a jQuery plugin</s> script that uses ajax, `pushState` and automatically detects links and forms, for configure page you need use `id="pjax-container"` in all pages, example:
 
 ```html
 <div id="pjax-container">
@@ -32,13 +32,13 @@ Requirements:
 For use:
 
 ```js
-$.autoPjax();
+Pjax.start();
 ```
 
 For change configs use like this:
 
 ```js
-$.autoPjax({
+Pjax.start({
     containers: [ "#my-container" ], //Change container element
     scrollLeft: -1, //Disable autoscroll
     scrollTop: -1 //Disable autoscroll
@@ -50,6 +50,7 @@ $.autoPjax({
 Property | type | default | Description
 --- | --- | --- | ---
 `containers:` | `array` | `[ "#pjax-container" ]` | Informs which elements to update on the page
+`updatecurrent:` | `bool` | `false` |
 `updatehead:` | `bool` | `true` | The "autopjax" has an intelligent update system that helps avoid the "blink" effect, because instead of updating everything it only updates what has been changed, however if you are sure that nothing will change as you page, you can set it to false ", The only one that will continue to be updated will be the `<title>` tag.
 `scrollLeft:` | `number` | `0` | After loading a page via PJAX you can define where scrollLeft should scroll.
 `scrollTop:` | `number` | `0` | After loading a page via PJAX you can define where scrollTop should scroll.
@@ -77,7 +78,7 @@ You can change the element you want to update or even add more elements, eg.:
     ...
 </div>
 <script>
-$.autoPjax({
+Pjax.start({
     containers: [ "#navbar", "#my-container" ] //Change containers element
 });
 </script>
@@ -87,11 +88,11 @@ $.autoPjax({
 
 Method | Description
 --- | ---
-`$.autoPjax("remove");` | Remove PJAX requests and events
-`$(document).on("pjax.initiate", function(event, url, config) {...});` | Trigged when clicked in a link or submit a form
-`$(document).on("pjax.done", function(event, url) {...});` | Trigged when page loaded using `$.jax`
-`$(document).on("pjax.fail", function(event, url, status, error) {...});` | Trigged when page failed to load, `status` return HTTP code and `error` return message error
-`$(document).on("pjax.then", function(event, url) {...});` | Executes every time a request is completed, even if it fails or succeeds.
+`Pjax.remove("remove");` | Remove PJAX requests and events
+`Pjax.on("initiate", function(event, url, config) {...});` | Trigged when clicked in a link or submit a form
+`Pjax.on("done", function(event, url) {...});` | Trigged when page loaded using `$.jax`
+`Pjax.on("fail", function(event, url, status, error) {...});` | Trigged when page failed to load, `status` return HTTP code and `error` return message error
+`Pjax.on("then", function(event, url) {...});` | Executes every time a request is completed, even if it fails or succeeds.
 
 You can change configs in `pjax.initiate` event, example:
 
@@ -107,9 +108,9 @@ You can change configs in `pjax.initiate` event, example:
     </div>
 </div>
 <script>
-$.autoPjax();
+Pjax.start();
 
-$(document).on("pjax.initiate", function (e, url, configs) {
+Pjax.on("initiate", function (e, url, configs) {
     if (url.indexOf("/search/") === 0 && window.location.href.indexOf("/search/") === 0) {
         configs.containers = [ "#search-container" ];
     }
@@ -151,7 +152,7 @@ You can custom CSS, example change color and size, put in new CSS file or `<styl
 If you need custom "more", first remove default loader:
 
 ```javascript
-$.autoPjax({
+Pjax.start({
     "loader": false
 });
 ```
@@ -159,11 +160,11 @@ $.autoPjax({
 And after use `pjax.initiate` and `pjax.then` events:
 
 ```javascript
-$(document).on("pjax.initiate", function () {
+Pjax.on("initiate", function () {
     $(".my-custom-loader").css("display", "block");
 });
 
-$(document).on("pjax.then", function () {
+Pjax.on("then", function () {
     $(".my-custom-loader").css("display", "none");
 });
 ```

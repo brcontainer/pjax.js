@@ -54,9 +54,8 @@ if (is_file($current)) {
     $data = file_get_contents($current);
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        var_dump(file_get_contents('php://input'));
-        $requestBody = str_replace('<', '&lt;', file_get_contents('php://input'));
-        $data = str_replace('{FORMDATA}', $requestBody, $data);
+        $req = str_replace('<', '&lt;', file_get_contents('php://input'));
+        $req = str_replace('{FORMDATA}', $req, $data);
     }
 
     echo $data;

@@ -31,7 +31,7 @@ public class SimpleServer
     public static void main(String[] args)
     {
         if (args.length != 1) {
-            throw new IllegalArgumentException("Invalid arguments, use like this `java Server 9000`");
+            throw new IllegalArgumentException("Invalid arguments, use like this `java SimpleServer 9000`");
         }
 
         ServerHandler handler = new ServerHandler();
@@ -52,7 +52,7 @@ public class SimpleServer
             server.setExecutor(Executors.newCachedThreadPool());
             server.start();
 
-            System.out.println("Server is listening on port 9000" );
+            System.out.println("Server is listening on port " + port);
         } catch (UnsupportedEncodingException e) {
             System.out.println("UnsupportedEncodingException" + e.getMessage());
         } catch (IOException e) {

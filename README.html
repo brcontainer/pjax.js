@@ -1015,7 +1015,7 @@ body .markdown-body
   }
 }
 </style><title>README</title></head><body><article class="markdown-body"><h2 id="automatic-pjax"><a name="user-content-automatic-pjax" href="#automatic-pjax" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Automatic Pjax</h2>
-<p>The <code>auto-pjax.js</code> is a jQuery plugin that uses ajax, <code>pushState</code> and automatically detects links and forms, for configure page you need use <code>id="pjax-container"</code> in all pages, example:</p>
+<p>The <code>Pjax.js</code> is <s>a jQuery plugin</s> script that uses ajax, <code>pushState</code> and automatically detects links and forms, for configure page you need use <code>id="pjax-container"</code> in all pages, example:</p>
 <pre><code class="html">&lt;div id=&quot;pjax-container&quot;&gt;
     ...
 &lt;/div&gt;
@@ -1038,11 +1038,11 @@ body .markdown-body
 </ul>
 <h2 id="usage"><a name="user-content-usage" href="#usage" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Usage</h2>
 <p>For use:</p>
-<pre><code class="js">$.autoPjax();
+<pre><code class="js">Pjax.start();
 </code></pre>
 
 <p>For change configs use like this:</p>
-<pre><code class="js">$.autoPjax({
+<pre><code class="js">Pjax.start({
     containers: [ &quot;#my-container&quot; ], //Change container element
     scrollLeft: -1, //Disable autoscroll
     scrollTop: -1 //Disable autoscroll
@@ -1065,6 +1065,12 @@ body .markdown-body
 <td><code>array</code></td>
 <td><code>[ "#pjax-container" ]</code></td>
 <td>Informs which elements to update on the page</td>
+</tr>
+<tr>
+<td><code>updatecurrent:</code></td>
+<td><code>bool</code></td>
+<td><code>false</code></td>
+<td></td>
 </tr>
 <tr>
 <td><code>updatehead:</code></td>
@@ -1138,7 +1144,7 @@ body .markdown-body
     ...
 &lt;/div&gt;
 &lt;script&gt;
-$.autoPjax({
+Pjax.start({
     containers: [ &quot;#navbar&quot;, &quot;#my-container&quot; ] //Change containers element
 });
 &lt;/script&gt;
@@ -1154,23 +1160,23 @@ $.autoPjax({
 </thead>
 <tbody>
 <tr>
-<td><code>$.autoPjax("remove");</code></td>
+<td><code>Pjax.remove("remove");</code></td>
 <td>Remove PJAX requests and events</td>
 </tr>
 <tr>
-<td><code>$(document).on("pjax.initiate", function(event, url, config) {...});</code></td>
+<td><code>Pjax.on("initiate", function(event, url, config) {...});</code></td>
 <td>Trigged when clicked in a link or submit a form</td>
 </tr>
 <tr>
-<td><code>$(document).on("pjax.done", function(event, url) {...});</code></td>
+<td><code>Pjax.on("done", function(event, url) {...});</code></td>
 <td>Trigged when page loaded using <code>$.jax</code></td>
 </tr>
 <tr>
-<td><code>$(document).on("pjax.fail", function(event, url, status, error) {...});</code></td>
+<td><code>Pjax.on("fail", function(event, url, status, error) {...});</code></td>
 <td>Trigged when page failed to load, <code>status</code> return HTTP code and <code>error</code> return message error</td>
 </tr>
 <tr>
-<td><code>$(document).on("pjax.then", function(event, url) {...});</code></td>
+<td><code>Pjax.on("then", function(event, url) {...});</code></td>
 <td>Executes every time a request is completed, even if it fails or succeeds.</td>
 </tr>
 </tbody>
@@ -1187,9 +1193,9 @@ $.autoPjax({
     &lt;/div&gt;
 &lt;/div&gt;
 &lt;script&gt;
-$.autoPjax();
+Pjax.start();
 
-$(document).on(&quot;pjax.initiate&quot;, function (e, url, configs) {
+Pjax.on(&quot;initiate&quot;, function (e, url, configs) {
     if (url.indexOf(&quot;/search/&quot;) === 0 &amp;&amp; window.location.href.indexOf(&quot;/search/&quot;) === 0) {
         configs.containers = [ &quot;#search-container&quot; ];
     }
@@ -1237,17 +1243,17 @@ $(document).on(&quot;pjax.initiate&quot;, function (e, url, configs) {
 </code></pre>
 
 <p>If you need custom &ldquo;more&rdquo;, first remove default loader:</p>
-<pre><code class="javascript">$.autoPjax({
+<pre><code class="javascript">Pjax.start({
     &quot;loader&quot;: false
 });
 </code></pre>
 
 <p>And after use <code>pjax.initiate</code> and <code>pjax.then</code> events:</p>
-<pre><code class="javascript">$(document).on(&quot;pjax.initiate&quot;, function () {
+<pre><code class="javascript">Pjax.on(&quot;initiate&quot;, function () {
     $(&quot;.my-custom-loader&quot;).css(&quot;display&quot;, &quot;block&quot;);
 });
 
-$(document).on(&quot;pjax.then&quot;, function () {
+Pjax.on(&quot;then&quot;, function () {
     $(&quot;.my-custom-loader&quot;).css(&quot;display&quot;, &quot;none&quot;);
 });
 </code></pre>

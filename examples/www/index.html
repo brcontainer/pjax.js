@@ -4,6 +4,14 @@
     <title>Automatic Pjax</title>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <link rel="icon" type="image/x-icon" href="https://assets-cdn.github.com/favicon.ico">
+    <link rel="stylesheet" type="text/css" href="assets/pjax.css">
+    <script src="assets/pjax.js"></script>
+    <script>
+    Pjax.start({
+        updatecurrent: false,
+        loader: false
+    });
+    </script>
 </head>
 <body>
     <ul>
@@ -64,14 +72,5 @@
             </p>
         </form>
     </div>
-
-    <link rel="stylesheet" type="text/css" href="assets/auto-pjax.css">
-
-    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
-    <script src="assets/auto-pjax.js"></script>
-
-    <script>
-    $.autoPjax();
-    </script>
 </body>
 </html>

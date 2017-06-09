@@ -4,6 +4,11 @@
     <title>Form Data with Pjax</title>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <link rel="shortcut icon" href="https://meta.stackexchange.com/content/Sites/stackexchangemeta/img/favicon.ico">
+    <link rel="stylesheet" type="text/css" href="assets/pjax.css">
+    <script src="assets/pjax.js"></script>
+    <script>
+    Pjax.start();
+    </script>
 </head>
 <body>
     <ul>
@@ -18,14 +23,5 @@
         <p>FORMDATA:</p>
         <pre>{FORMDATA}</pre>
     </div>
-
-    <link rel="stylesheet" type="text/css" href="assets/auto-pjax.css">
-
-    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
-    <script src="assets/auto-pjax.js"></script>
-
-    <script>
-    $.autoPjax();
-    </script>
 </body>
 </html>

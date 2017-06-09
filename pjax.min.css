@@ -1,0 +1,2 @@
+/* auto-pjax.js 0.3.0 | Copyright (c) 2017 Guilherme Nascimento (brcontainer@yahoo.com.br) | Released under the MIT license */
+.pjax-loader{position:fixed;z-index:200000;left:0;top:0;width:100%;pointer-events:none}.pjax-loader .pjax-progress{height:4px;width:0;opacity:1;background-color:#77b6ff}.pjax-start .pjax-progress{-webkit-transition:width 1.5s ease,opacity .8s ease;transition:width 1.5s ease,opacity .8s ease}.pjax-inload .pjax-progress{width:95%}.pjax-end .pjax-progress{width:100%;opacity:.01}.pjax-hide{display:none}
