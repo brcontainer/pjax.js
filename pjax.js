@@ -10,7 +10,7 @@
     "use strict";
 
     w.Pjax = {
-        "supported": !w.history.pushState || !(w.DOMParser || d.implementation.createHTMLDocument),
+        "supported": !history.pushState || !(DOMParser || d.implementation.createHTMLDocument),
         "remove": remove,
         "start": start,
         "on": function (name, callback) {
@@ -24,9 +24,7 @@
     var
         xhr, config, timer, loader, evts = {},
         host = w.location.protocol.replace(/:/g, "") + "://" + w.location.host,
-        inputRe = /^(input|textarea|select|datalist|button|output)$/i,
-        formv = "form:not([data-pjax-ignore]):not([action^='javascript:'])",
-        linkv = "a:not([data-pjax-ignore]):not([href^='#']):not([href^='javascript:'])"
+        inputRe = /^(input|textarea|select|datalist|button|output)$/i
     ;
 
     function isUnsigned(value) {
@@ -76,7 +74,7 @@
     }
 
     function parseHtml(data) {
-        if (w.DOMParser) {
+        if (DOMParser) {
             return (new DOMParser).parseFromString(data, "text/html");
         }
 
@@ -122,10 +120,10 @@
         frag = nodes = null;
     }
 
-    function pjaxTrigger(name, arg1, arg2) {
+    function pjaxTrigger(name, arg1, arg2, arg3) {
         if (!evts[name]) return;
 
-        for (var ce = evts[name], i = 0; i < ce.length; i++) ce[i](arg1, arg2);
+        for (var ce = evts[name], i = 0; i < ce.length; i++) ce[i](arg1, arg2, arg3);
     }
 
     function pjaxEvent(name, callback, remove) {
@@ -222,6 +220,17 @@
         return cfg;
     }
 
+    function pjaxDone(url, data, cfg, state) {
+        pjaxParse(url, data, cfg, state);
+        pjaxTrigger("done", url);
+        pjaxTrigger("then", url);
+    }
+
+    function pjaxFail(url, status) {
+        pjaxTrigger("fail", url, status);
+        pjaxTrigger("then", url);
+    }
+
     function pjaxAbort() {
         if (xhr) xhr.abort();
     }
@@ -233,6 +242,17 @@
 
         pjaxTrigger("initiate", url, cfg);
 
+        if (evts["handler"]) {
+            pjaxTrigger("handler", {
+                "url": url,
+                "state": state,
+                "method": method,
+                "element": el,
+                "containers": cfg.containers
+            }, pjaxDone, pjaxFail);
+            return;
+        }
+
         var headers = {
             "X-PJAX-Container": cfg.containers.join(","),
             "X-PJAX-URL": url,
@@ -240,7 +260,7 @@
         };
 
         xhr = new XMLHttpRequest;
-        xhr.open(method, url, true);
+        xhr.open(method, config.proxy || url, true);
 
         for (var k in headers) {
             xhr.setRequestHeader(k, headers[k]);
@@ -251,13 +271,11 @@
                 var status = this.status;
 
                 if (status >= 200 && status < 300 || status === 304) {
-                    pjaxParse(url, this.responseText, cfg, state);
+                    pjaxDone(url, this.responseText, cfg, state);
                     pjaxTrigger("done", url);
                 } else {
-                    pjaxTrigger("fail", url, status);
+                    pjaxFail(url, status);
                 }
-
-                pjaxTrigger("then", url);
             }
         };
 
@@ -267,9 +285,9 @@
     function pjaxRequest(e) {
         var url, link, method = "GET", data = null, noprocess = false, el = e.target;
 
-        if (el.matches(formv)) {
+        if (el.matches(config.formSelector)) {
             url = el.action;
-        } else if (el.matches(linkv)) {
+        } else if (el.matches(config.linkSelector)) {
             url = el.href;
         } else {
             e.preventDefault();
@@ -279,7 +297,7 @@
                 if (el.tagName === "A") link = el; break;
             }
 
-            if (!link) return;
+            if (!link || !link.matches(config.linkSelector)) return;
 
             el = link;
             url = el.href;
@@ -290,7 +308,7 @@
         if (el.nodeName === "FORM") {
             method = String(el.method).toUpperCase();
 
-            if (method === "POST" && !w.FormData) return;
+            if (method === "POST" && !FormData) return;
 
             if (method !== "POST" || el.enctype !== "multipart/form-data") {
                 data = serialize(el);
@@ -300,7 +318,7 @@
                     if (data) url += "?" + data;
                     data = null;
                 }
-            } else if (w.FormData) {
+            } else if (FormData) {
                 data = new FormData(el);
             } else {
                 return;
@@ -329,50 +347,6 @@
         }
     }
 
-    function start(opts) {
-        if (!/^http(|s):$/.test(w.location.protocol)) return;
-
-        config = {
-            "containers": [ "#pjax-container" ],
-            "updatecurrent": false,
-            "updatehead": true,
-            "scrollLeft": 0,
-            "scrollTop": 0,
-            "loader": true
-        };
-
-        for (var k in config) {
-            if (opts && opts[k]) config[k] = opts[k];
-        }
-
-        opts = null;
-
-        pjaxEvent("initiate", showLoader);
-        pjaxEvent("then", hideLoader);
-
-        w.addEventListener("unload", pjaxAbort);
-        w.addEventListener("popstate", pjaxState);
-
-        d.addEventListener("click", pjaxRequest);
-        d.addEventListener("submit", pjaxRequest);
-
-        if (/^(interactive|complete)$/i.test(d.readyState)) {
-            ready();
-        } else {
-            d.addEventListener("DOMContentLoaded", ready);
-        }
-    }
-
-    if (!m.matches) {
-        m.matches = m.matchesSelector || m.mozMatchesSelector || m.msMatchesSelector ||
-        m.oMatchesSelector || m.webkitMatchesSelector || function(s) {
-            var m = (this.document || this.ownerDocument).querySelectorAll(s), i = m.length;
-
-            while (--i >= 0 && m[i] !== this);
-            return i > -1;
-        };
-    }
-
     function ready() {
         var url = String(w.location);
 
@@ -397,4 +371,53 @@
         w.removeEventListener("unload", pjaxAbort);
         w.removeEventListener("popstate", pjaxState);
     }
-})(document, window, Element.prototype);
+
+    function start(opts) {
+        if (!/^http(|s):$/.test(w.location.protocol)) return;
+
+        remove();
+
+        config = {
+            "linkSelector": "a:not([data-pjax-ignore]):not([href^='#']):not([href^='javascript:'])",
+            "formSelector": "form:not([data-pjax-ignore]):not([action^='javascript:'])",
+            "containers": [ "#pjax-container" ],
+            "updatecurrent": false,
+            "updatehead": true,
+            "scrollLeft": 0,
+            "scrollTop": 0,
+            "loader": true,
+            "proxy": ""
+        };
+
+        for (var k in config) {
+            if (opts && opts[k]) config[k] = opts[k];
+        }
+
+        opts = null;
+
+        pjaxEvent("initiate", showLoader);
+        pjaxEvent("then", hideLoader);
+
+        w.addEventListener("unload", pjaxAbort);
+        w.addEventListener("popstate", pjaxState);
+
+        if (config.linkSelector) d.addEventListener("click", pjaxRequest);
+        if (config.formSelector) d.addEventListener("submit", pjaxRequest);
+
+        if (/^(interactive|complete)$/i.test(d.readyState)) {
+            ready();
+        } else {
+            d.addEventListener("DOMContentLoaded", ready);
+        }
+    }
+
+    if (!m.matches) {
+        m.matches = m.matchesSelector || m.mozMatchesSelector || m.msMatchesSelector ||
+        m.oMatchesSelector || m.webkitMatchesSelector || function(s) {
+            var m = (this.document || this.ownerDocument).querySelectorAll(s), i = m.length;
+
+            while (--i >= 0 && m[i] !== this);
+            return i > -1;
+        };
+    }
+})(document, window, Element && Element.prototype);

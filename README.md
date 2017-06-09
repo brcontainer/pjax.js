@@ -55,6 +55,9 @@ Property | type | default | Description
 `scrollLeft:` | `number` | `0` | After loading a page via PJAX you can define where scrollLeft should scroll.
 `scrollTop:` | `number` | `0` | After loading a page via PJAX you can define where scrollTop should scroll.
 `loader:` | `bool` | `true` | Adds the native Pjax loader, if you want to create a loader of your own, set it to `false`.
+`proxy` | `string` | `false` | Set Web Proxy.
+`formSelector` | `string` | `form:not([data-pjax-ignore]):not([action^='javascript:'])"` | Set form selector, set empty for prevent forms uses Pjax
+`linkSelector` | `string` | `a:not([data-pjax-ignore]):not([href^='#']):not([href^='javascript:'])"` | Set form selector, set empty for prevent links uses Pjax
 
 If need overwrite properties for specific link or form you can config using HTML attributes:
 
@@ -63,7 +66,7 @@ Property | equivalent | example
 `data-pjax-containers` | `containers:` | `<a href="..." data-pjax-containers="[ &quot;#foo&quot;, &quot;#bar&quot;, &quot;#baz&quot; ]"`
 `data-pjax-updatehead` | `updatehead:` | `<a href="..." data-pjax-updatehead="false"`
 `data-pjax-scroll-left` | `scrollLeft:` | `<form action="..." data-pjax-scroll-left="10"`
-`data-pjax-scroll-top` | `scrollRight:` | `<form action="..." data-pjax-scroll-right="-1"`
+`data-pjax-scroll-top` | `scrollTop:` | `<form action="..." data-pjax-scroll-top="-1"`
 `data-pjax-loader` | `loader:` | `<a href="..." data-pjax-loader="false"`
 
 ## Update two elements (or more)
@@ -89,10 +92,11 @@ Pjax.start({
 Method | Description
 --- | ---
 `Pjax.remove("remove");` | Remove PJAX requests and events
-`Pjax.on("initiate", function(event, url, config) {...});` | Trigged when clicked in a link or submit a form
-`Pjax.on("done", function(event, url) {...});` | Trigged when page loaded using `$.jax`
-`Pjax.on("fail", function(event, url, status, error) {...});` | Trigged when page failed to load, `status` return HTTP code and `error` return message error
-`Pjax.on("then", function(event, url) {...});` | Executes every time a request is completed, even if it fails or succeeds.
+`Pjax.on("initiate", function(url, config) {...});` | Trigged when clicked in a link or submit a form
+`Pjax.on("done", function(url) {...});` | Trigged when page loaded using `$.jax`
+`Pjax.on("fail", function(url, status, error) {...});` | Trigged when page failed to load, `status` return HTTP code and `error` return message error
+`Pjax.on("then", function(url) {...});` | Executes every time a request is completed, even if it fails or succeeds.
+`Pjax.on("handler", function(data, callbackDone, callbackFail) {...});` | Create your owner response to Pjax.js
 
 You can change configs in `pjax.initiate` event, example:
 

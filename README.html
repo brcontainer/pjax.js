@@ -1096,6 +1096,24 @@ body .markdown-body
 <td><code>true</code></td>
 <td>Adds the native Pjax loader, if you want to create a loader of your own, set it to <code>false</code>.</td>
 </tr>
+<tr>
+<td><code>proxy</code></td>
+<td><code>string</code></td>
+<td><code>false</code></td>
+<td>Set Web Proxy.</td>
+</tr>
+<tr>
+<td><code>formSelector</code></td>
+<td><code>string</code></td>
+<td><code>form:not([data-pjax-ignore]):not([action^='javascript:'])"</code></td>
+<td>Set form selector, set empty for prevent forms uses Pjax</td>
+</tr>
+<tr>
+<td><code>linkSelector</code></td>
+<td><code>string</code></td>
+<td><code>a:not([data-pjax-ignore]):not([href^='#']):not([href^='javascript:'])"</code></td>
+<td>Set form selector, set empty for prevent links uses Pjax</td>
+</tr>
 </tbody>
 </table>
 <p>If need overwrite properties for specific link or form you can config using HTML attributes:</p>
@@ -1125,8 +1143,8 @@ body .markdown-body
 </tr>
 <tr>
 <td><code>data-pjax-scroll-top</code></td>
-<td><code>scrollRight:</code></td>
-<td><code>&lt;form action="..." data-pjax-scroll-right="-1"</code></td>
+<td><code>scrollTop:</code></td>
+<td><code>&lt;form action="..." data-pjax-scroll-top="-1"</code></td>
 </tr>
 <tr>
 <td><code>data-pjax-loader</code></td>
@@ -1164,20 +1182,24 @@ Pjax.start({
 <td>Remove PJAX requests and events</td>
 </tr>
 <tr>
-<td><code>Pjax.on("initiate", function(event, url, config) {...});</code></td>
+<td><code>Pjax.on("initiate", function(url, config) {...});</code></td>
 <td>Trigged when clicked in a link or submit a form</td>
 </tr>
 <tr>
-<td><code>Pjax.on("done", function(event, url) {...});</code></td>
+<td><code>Pjax.on("done", function(url) {...});</code></td>
 <td>Trigged when page loaded using <code>$.jax</code></td>
 </tr>
 <tr>
-<td><code>Pjax.on("fail", function(event, url, status, error) {...});</code></td>
+<td><code>Pjax.on("fail", function(url, status, error) {...});</code></td>
 <td>Trigged when page failed to load, <code>status</code> return HTTP code and <code>error</code> return message error</td>
 </tr>
 <tr>
-<td><code>Pjax.on("then", function(event, url) {...});</code></td>
+<td><code>Pjax.on("then", function(url) {...});</code></td>
 <td>Executes every time a request is completed, even if it fails or succeeds.</td>
+</tr>
+<tr>
+<td><code>Pjax.on("handler", function(data, callbackDone, callbackFail) {...});</code></td>
+<td>Create your owner response to Pjax.js</td>
 </tr>
 </tbody>
 </table>
