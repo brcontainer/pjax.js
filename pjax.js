@@ -203,8 +203,6 @@
                 "scroll-left", "scroll-right", "done", "fail"
             ];
 
-        console.log(el.outerHTML);
-
         for (var i = attrs.length - 1; i >= 0; i--) {
             current = attrs[i];
 
@@ -247,8 +245,6 @@
         pjaxAbort();
 
         var cfg = pjaxAttributes(el);
-
-        console.log(cfg);
 
         cDone = cfg.done;
         cFail = cfg.fail;
