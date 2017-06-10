@@ -22,7 +22,7 @@
     };
 
     var
-        xhr, config, timer, loader, evts = {},
+        xhr, config, timer, loader, cDone, cFail, cEl, evts = {},
         host = w.location.protocol.replace(/:/g, "") + "://" + w.location.host,
         inputRe = /^(input|textarea|select|datalist|button|output)$/i
     ;
@@ -185,7 +185,7 @@
     }
 
     function data(el, name) {
-        var d = el.getAttribute(name), resp;
+        var d = el.getAttribute("data-" + name), resp;
 
         if (d === "true" || d === "false") {
             resp = d === "true";
@@ -200,8 +200,10 @@
         var current, c, v, cfg = JSON.parse(JSON.stringify(config)),
             attrs = [
                 "containers", "updatecurrent", "updatehead", "loader",
-                "scroll-left", "scroll-right", "then", "done", "fail"
+                "scroll-left", "scroll-right", "done", "fail"
             ];
+
+        console.log(el.outerHTML);
 
         for (var i = attrs.length - 1; i >= 0; i--) {
             current = attrs[i];
@@ -224,21 +226,33 @@
         pjaxParse(url, data, cfg, state);
         pjaxTrigger("done", url);
         pjaxTrigger("then", url);
+
+        if (cDone) new Function(cDone).call(cEl);
     }
 
     function pjaxFail(url, status) {
         pjaxTrigger("fail", url, status);
         pjaxTrigger("then", url);
+
+        if (cFail) new Function(cFail).call(cEl);
     }
 
     function pjaxAbort() {
         if (xhr) xhr.abort();
+        cDone = u;
+        cFail = u;
     }
 
     function pjaxLoad(url, state, method, el, data) {
         pjaxAbort();
 
         var cfg = pjaxAttributes(el);
+
+        console.log(cfg);
+
+        cDone = cfg.done;
+        cFail = cfg.fail;
+        cEl = el;
 
         pjaxTrigger("initiate", url, cfg);
 

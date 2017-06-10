@@ -55,9 +55,9 @@ Property | type | default | Description
 `scrollLeft:` | `number` | `0` | After loading a page via PJAX you can define where scrollLeft should scroll.
 `scrollTop:` | `number` | `0` | After loading a page via PJAX you can define where scrollTop should scroll.
 `loader:` | `bool` | `true` | Adds the native Pjax loader, if you want to create a loader of your own, set it to `false`.
-`proxy` | `string` | `false` | Set Web Proxy.
-`formSelector` | `string` | `form:not([data-pjax-ignore]):not([action^='javascript:'])"` | Set form selector, set empty for prevent forms uses Pjax
-`linkSelector` | `string` | `a:not([data-pjax-ignore]):not([href^='#']):not([href^='javascript:'])"` | Set form selector, set empty for prevent links uses Pjax
+`proxy:` | `string` | `false` | Set Web Proxy.
+`formSelector:` | `string` | `form:not([data-pjax-ignore]):not([action^='javascript:'])"` | Set form selector, set empty for prevent forms uses Pjax
+`linkSelector:` | `string` | `a:not([data-pjax-ignore]):not([href^='#']):not([href^='javascript:'])"` | Set form selector, set empty for prevent links uses Pjax
 
 If need overwrite properties for specific link or form you can config using HTML attributes:
 
@@ -68,6 +68,8 @@ Property | equivalent | example
 `data-pjax-scroll-left` | `scrollLeft:` | `<form action="..." data-pjax-scroll-left="10"`
 `data-pjax-scroll-top` | `scrollTop:` | `<form action="..." data-pjax-scroll-top="-1"`
 `data-pjax-loader` | `loader:` | `<a href="..." data-pjax-loader="false"`
+`data-pjax-done` | | `<a href="..." data-pjax-done="console.log("success", this);"`
+`data-pjax-fail` | | `<a href="..." data-pjax-fail="console.log("error", this);"`
 
 ## Update two elements (or more)
 
@@ -95,7 +97,7 @@ Method | Description
 `Pjax.on("initiate", function(url, config) {...});` | Trigged when clicked in a link or submit a form
 `Pjax.on("done", function(url) {...});` | Trigged when page loaded using `$.jax`
 `Pjax.on("fail", function(url, status, error) {...});` | Trigged when page failed to load, `status` return HTTP code and `error` return message error
-`Pjax.on("then", function(url) {...});` | Executes every time a request is completed, even if it fails or succeeds.
+`Pjax.on("then", function(url) {...});` | Executes every time a request is completed, even if it fails or success.
 `Pjax.on("handler", function(data, callbackDone, callbackFail) {...});` | Create your owner response to Pjax.js
 
 You can change configs in `pjax.initiate` event, example:
@@ -114,7 +116,7 @@ You can change configs in `pjax.initiate` event, example:
 <script>
 Pjax.start();
 
-Pjax.on("initiate", function (e, url, configs) {
+Pjax.on("initiate", function (url, configs) {
     if (url.indexOf("/search/") === 0 && window.location.href.indexOf("/search/") === 0) {
         configs.containers = [ "#search-container" ];
     }

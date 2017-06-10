@@ -1097,19 +1097,19 @@ body .markdown-body
 <td>Adds the native Pjax loader, if you want to create a loader of your own, set it to <code>false</code>.</td>
 </tr>
 <tr>
-<td><code>proxy</code></td>
+<td><code>proxy:</code></td>
 <td><code>string</code></td>
 <td><code>false</code></td>
 <td>Set Web Proxy.</td>
 </tr>
 <tr>
-<td><code>formSelector</code></td>
+<td><code>formSelector:</code></td>
 <td><code>string</code></td>
 <td><code>form:not([data-pjax-ignore]):not([action^='javascript:'])"</code></td>
 <td>Set form selector, set empty for prevent forms uses Pjax</td>
 </tr>
 <tr>
-<td><code>linkSelector</code></td>
+<td><code>linkSelector:</code></td>
 <td><code>string</code></td>
 <td><code>a:not([data-pjax-ignore]):not([href^='#']):not([href^='javascript:'])"</code></td>
 <td>Set form selector, set empty for prevent links uses Pjax</td>
@@ -1150,6 +1150,16 @@ body .markdown-body
 <td><code>data-pjax-loader</code></td>
 <td><code>loader:</code></td>
 <td><code>&lt;a href="..." data-pjax-loader="false"</code></td>
+</tr>
+<tr>
+<td><code>data-pjax-done</code></td>
+<td></td>
+<td><code>&lt;a href="..." data-pjax-done="console.log("success", this);"</code></td>
+</tr>
+<tr>
+<td><code>data-pjax-fail</code></td>
+<td></td>
+<td><code>&lt;a href="..." data-pjax-fail="console.log("error", this);"</code></td>
 </tr>
 </tbody>
 </table>
@@ -1195,7 +1205,7 @@ Pjax.start({
 </tr>
 <tr>
 <td><code>Pjax.on("then", function(url) {...});</code></td>
-<td>Executes every time a request is completed, even if it fails or succeeds.</td>
+<td>Executes every time a request is completed, even if it fails or success.</td>
 </tr>
 <tr>
 <td><code>Pjax.on("handler", function(data, callbackDone, callbackFail) {...});</code></td>
@@ -1217,7 +1227,7 @@ Pjax.start({
 &lt;script&gt;
 Pjax.start();
 
-Pjax.on(&quot;initiate&quot;, function (e, url, configs) {
+Pjax.on(&quot;initiate&quot;, function (url, configs) {
     if (url.indexOf(&quot;/search/&quot;) === 0 &amp;&amp; window.location.href.indexOf(&quot;/search/&quot;) === 0) {
         configs.containers = [ &quot;#search-container&quot; ];
     }
