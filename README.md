@@ -68,8 +68,8 @@ Property | equivalent | example
 `data-pjax-scroll-left` | `scrollLeft:` | `<form action="..." data-pjax-scroll-left="10"`
 `data-pjax-scroll-top` | `scrollTop:` | `<form action="..." data-pjax-scroll-top="-1"`
 `data-pjax-loader` | `loader:` | `<a href="..." data-pjax-loader="false"`
-`data-pjax-done` | | `<a href="..." data-pjax-done="console.log("success", this);"`
-`data-pjax-fail` | | `<a href="..." data-pjax-fail="console.log("error", this);"`
+`data-pjax-done` | - | `<a href="..." data-pjax-done="console.log('success', this);"`
+`data-pjax-fail` | - | `<a href="..." data-pjax-fail="console.log('error', this);"`
 
 ## Update two elements (or more)
 
