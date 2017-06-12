@@ -173,6 +173,8 @@
                 np = true;
                 h.go(-1);
                 setTimeout(function () {
+                    if (url === String(w.location)) return;
+
                     h.go(1);
                     np = false;
                 }, 20);
