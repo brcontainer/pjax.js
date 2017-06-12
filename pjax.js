@@ -1,5 +1,5 @@
 /*
- * Pjax.js 0.3.0
+ * Pjax.js 0.4.0
  *
  * Copyright (c) 2017 Guilherme Nascimento (brcontainer@yahoo.com.br)
  *
@@ -66,7 +66,7 @@
         var data = [];
 
         [].slice.call(el.querySelectorAll("[name]")).forEach(function (el) {
-            if (el.name && inputRe.test(el.taName)) {
+            if (el.name && inputRe.test(el.tagName)) {
                 data.push(encodeURIComponent(el.name) + "=" + encodeURIComponent(el.value));
             }
         });
@@ -373,6 +373,7 @@
 
         pjaxAbort();
         pjaxParse(e.state.pjaxUrl, e.state.pjaxData, e.state.pjaxConfig, false);
+        pjaxTrigger("history", e.state.pjaxUrl, e.state);
     }
 
     function ready() {

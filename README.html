@@ -1220,7 +1220,11 @@ Pjax.start({
 <td>Executes every time a request is completed, even if it fails or success.</td>
 </tr>
 <tr>
-<td><code>Pjax.on("handler", function(data, callbackDone, callbackFail) {...});</code></td>
+<td><code>Pjax.on("history", function(url, stateData) {...});</code></td>
+<td>Executes every use back or forward</td>
+</tr>
+<tr>
+<td><code>Pjax.on("handler", function(data, config, callbackDone, callbackFail) {...});</code></td>
 <td>Create your owner response to Pjax.js</td>
 </tr>
 </tbody>

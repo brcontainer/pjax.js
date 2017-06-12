@@ -107,7 +107,8 @@ Method | Description
 `Pjax.on("done", function(url) {...});` | Trigged when page loaded using `$.jax`
 `Pjax.on("fail", function(url, status, error) {...});` | Trigged when page failed to load, `status` return HTTP code and `error` return message error
 `Pjax.on("then", function(url) {...});` | Executes every time a request is completed, even if it fails or success.
-`Pjax.on("handler", function(data, callbackDone, callbackFail) {...});` | Create your owner response to Pjax.js
+`Pjax.on("history", function(url, stateData) {...});` | Executes every use back or forward
+`Pjax.on("handler", function(data, config, callbackDone, callbackFail) {...});` | Create your owner response to Pjax.js
 
 You can change configs in `initiate` event, example:
 
