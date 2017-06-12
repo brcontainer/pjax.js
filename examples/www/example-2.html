@@ -3,14 +3,38 @@
 <head>
     <title>Example 2 - Pjax</title>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=0">
     <link rel="shortcut icon" href="https://cdn.sstatic.net/Sites/stackapps/img/favicon.ico">
     <link rel="stylesheet" type="text/css" href="assets/pjax.css">
     <script src="assets/pjax.js"></script>
     <script>
     Pjax.start();
     </script>
+    <style type="text/css">
+    #notice {
+        background-color: #188abd;
+        color: #fff;
+        padding: 5px 15px;
+    }
+    </style>
 </head>
 <body>
+
+    <script type="text/javascript">
+    if (!Pjax.supported) {
+        document.write('<div id="notice">');
+        document.write('<p>Your browser don\'t support Pjax, using normal navigation</p>');
+        document.write('</div>');
+    }
+    </script>
+
+    <script type="text/javascript">
+    if (Pjax.supported) {
+        var d = document.getElementById("notice");
+        if (d) d.style.display += "none";
+    }
+    </script>
+
     <ul>
         <li><a href="./">Home</a></li>
         <li><a href="example-1.html">Example 1</a></li>

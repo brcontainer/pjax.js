@@ -1029,12 +1029,20 @@ body .markdown-body
 </code></pre>
 
 <h2 id="support"><a name="user-content-support" href="#support" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Support</h2>
-<p>The <code>auto-pjax.js</code> support links, forms with method <code>GET</code>, forms with method <code>POST</code> and support files and multiple files (<code>&lt;input type="file" multiple&gt;</code>).</p>
+<p>The <code>pjax.js</code> support links, forms with method <code>GET</code>, forms with method <code>POST</code> and support files and multiple files (<code>&lt;input type="file" multiple&gt;</code>).</p>
 <p>Requirements:</p>
 <ul>
-<li><code>DOMParser</code></li>
+<li><code>DOMParser</code> or <code>document.implementation</code></li>
 <li><code>pushState</code>, <code>replaceState</code> and <code>popstate</code> (DOM History manipulation)</li>
 <li><code>FormData</code> (XMLHttpRequest Level 2) - if need upload files using PJAX (<code>enctype="multipart/form-data"</code>)</li>
+</ul>
+<p>Tested in:</p>
+<ul>
+<li>Internet Explorer 10</li>
+<li>Firefox</li>
+<li>Google Chrome</li>
+<li>Android 4.0</li>
+<li>iOS 10</li>
 </ul>
 <h2 id="usage"><a name="user-content-usage" href="#usage" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Usage</h2>
 <p>For use:</p>
@@ -1070,37 +1078,37 @@ body .markdown-body
 <td><code>updatecurrent:</code></td>
 <td><code>bool</code></td>
 <td><code>false</code></td>
-<td></td>
+<td>If <code>true</code> request same url in used by current page is executed <code>history.replaceState</code>, otherwise nothing will be executed</td>
 </tr>
 <tr>
 <td><code>updatehead:</code></td>
 <td><code>bool</code></td>
 <td><code>true</code></td>
-<td>The &ldquo;autopjax&rdquo; has an intelligent update system that helps avoid the &ldquo;blink&rdquo; effect, because instead of updating everything it only updates what has been changed, however if you are sure that nothing will change as you page, you can set it to false &ldquo;, The only one that will continue to be updated will be the <code>&lt;title&gt;</code> tag.</td>
+<td>The &ldquo;pjax.js&rdquo; has an intelligent update system that helps avoid the &ldquo;blink&rdquo; effect, because instead of updating everything it only updates what has been changed, however if you are sure that nothing will change as you page, you can set it to false, the only one that will continue to be updated will be the <code>&lt;title&gt;</code> tag</td>
 </tr>
 <tr>
 <td><code>scrollLeft:</code></td>
 <td><code>number</code></td>
 <td><code>0</code></td>
-<td>After loading a page via PJAX you can define where scrollLeft should scroll.</td>
+<td>After loading a page via PJAX you can define where scrollLeft should scroll</td>
 </tr>
 <tr>
 <td><code>scrollTop:</code></td>
 <td><code>number</code></td>
 <td><code>0</code></td>
-<td>After loading a page via PJAX you can define where scrollTop should scroll.</td>
+<td>After loading a page via PJAX you can define where scrollTop should scroll</td>
 </tr>
 <tr>
 <td><code>loader:</code></td>
 <td><code>bool</code></td>
 <td><code>true</code></td>
-<td>Adds the native Pjax loader, if you want to create a loader of your own, set it to <code>false</code>.</td>
+<td>Adds the native Pjax loader, if you want to create a loader of your own, set it to <code>false</code></td>
 </tr>
 <tr>
 <td><code>proxy:</code></td>
 <td><code>string</code></td>
 <td><code>false</code></td>
-<td>Set Web Proxy.</td>
+<td>Set Web Proxy</td>
 </tr>
 <tr>
 <td><code>formSelector:</code></td>
@@ -1188,6 +1196,10 @@ Pjax.start({
 </thead>
 <tbody>
 <tr>
+<td><code>Pjax.supported</code></td>
+<td>Return <code>true</code> if support this lib, otherwise return <code>false</code></td>
+</tr>
+<tr>
 <td><code>Pjax.remove("remove");</code></td>
 <td>Remove PJAX requests and events</td>
 </tr>
@@ -1213,7 +1225,7 @@ Pjax.start({
 </tr>
 </tbody>
 </table>
-<p>You can change configs in <code>pjax.initiate</code> event, example:</p>
+<p>You can change configs in <code>initiate</code> event, example:</p>
 <pre><code class="html">&lt;div id=&quot;pjax-container&quot;&gt;
     &lt;div id=&quot;filter&quot;&gt;
         &lt;form&gt;
@@ -1266,7 +1278,7 @@ Pjax.on(&quot;initiate&quot;, function (url, configs) {
 }
 </code></pre>
 
-<h2 id="custom-loader-with-pjax"><a name="user-content-custom-loader-with-pjax" href="#custom-loader-with-pjax" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Custom loader with PJAX</h2>
+<h2 id="custom-loader-with-pjax"><a name="user-content-custom-loader-with-pjax" href="#custom-loader-with-pjax" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Custom loader with Pjax</h2>
 <p>You can custom CSS, example change color and size, put in new CSS file or <code>&lt;style&gt;</code> tag:</p>
 <pre><code class="css">.pjax-loader .pjax-progress {
     height: 6px;
@@ -1276,11 +1288,11 @@ Pjax.on(&quot;initiate&quot;, function (url, configs) {
 
 <p>If you need custom &ldquo;more&rdquo;, first remove default loader:</p>
 <pre><code class="javascript">Pjax.start({
-    &quot;loader&quot;: false
+    loader: false
 });
 </code></pre>
 
-<p>And after use <code>pjax.initiate</code> and <code>pjax.then</code> events:</p>
+<p>And after use <code>initiate</code> and <code>then</code> events:</p>
 <pre><code class="javascript">Pjax.on(&quot;initiate&quot;, function () {
     $(&quot;.my-custom-loader&quot;).css(&quot;display&quot;, &quot;block&quot;);
 });
@@ -1294,4 +1306,17 @@ Pjax.on(&quot;then&quot;, function () {
 <pre><code class="html">&lt;div class=&quot;my-custom-loader&quot;&gt;
     &lt;img src=&quot;loader.gif&quot;&gt;
 &lt;/div&gt;
+</code></pre>
+
+<h2 id="pjax-handler-response"><a name="user-content-pjax-handler-response" href="#pjax-handler-response" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Pjax handler response</h2>
+<p>For create a custom responses for Pjax you can use <code>handler</code> event, example:</p>
+<pre><code class="javascript">Pjax.start({
+    updatehead: false //Prevent remove itens in head
+});
+
+Pjax.on(&quot;handler&quot;, function(hdata, config, done, fail) {
+    setTimeout(function () {
+        done(hdata.url, '&lt;div id=&quot;pjax-container&quot;&gt;Foo: ' + new Date() + '&lt;/div&gt;', config, hdata.state);
+    }, 1000);
+});
 </code></pre></article></body></html>

@@ -19,13 +19,21 @@ Pjax load all content from pages, but uses only contents from first element usin
 
 ## Support
 
-The `auto-pjax.js` support links, forms with method `GET`, forms with method `POST` and support files and multiple files (`<input type="file" multiple>`).
+The `pjax.js` support links, forms with method `GET`, forms with method `POST` and support files and multiple files (`<input type="file" multiple>`).
 
 Requirements:
 
-- `DOMParser`
+- `DOMParser` or `document.implementation`
 - `pushState`, `replaceState` and `popstate` (DOM History manipulation)
 - `FormData` (XMLHttpRequest Level 2) - if need upload files using PJAX (`enctype="multipart/form-data"`)
+
+Tested in:
+
+- Internet Explorer 10
+- Firefox
+- Google Chrome
+- Android 4.0
+- iOS 10
 
 ## Usage
 
@@ -50,12 +58,12 @@ Pjax.start({
 Property | type | default | Description
 --- | --- | --- | ---
 `containers:` | `array` | `[ "#pjax-container" ]` | Informs which elements to update on the page
-`updatecurrent:` | `bool` | `false` |
-`updatehead:` | `bool` | `true` | The "autopjax" has an intelligent update system that helps avoid the "blink" effect, because instead of updating everything it only updates what has been changed, however if you are sure that nothing will change as you page, you can set it to false ", The only one that will continue to be updated will be the `<title>` tag.
-`scrollLeft:` | `number` | `0` | After loading a page via PJAX you can define where scrollLeft should scroll.
-`scrollTop:` | `number` | `0` | After loading a page via PJAX you can define where scrollTop should scroll.
-`loader:` | `bool` | `true` | Adds the native Pjax loader, if you want to create a loader of your own, set it to `false`.
-`proxy:` | `string` | `false` | Set Web Proxy.
+`updatecurrent:` | `bool` | `false` | If `true` request same url in used by current page is executed `history.replaceState`, otherwise nothing will be executed
+`updatehead:` | `bool` | `true` | The "pjax.js" has an intelligent update system that helps avoid the "blink" effect, because instead of updating everything it only updates what has been changed, however if you are sure that nothing will change as you page, you can set it to false, the only one that will continue to be updated will be the `<title>` tag
+`scrollLeft:` | `number` | `0` | After loading a page via PJAX you can define where scrollLeft should scroll
+`scrollTop:` | `number` | `0` | After loading a page via PJAX you can define where scrollTop should scroll
+`loader:` | `bool` | `true` | Adds the native Pjax loader, if you want to create a loader of your own, set it to `false`
+`proxy:` | `string` | `false` | Set Web Proxy
 `formSelector:` | `string` | `form:not([data-pjax-ignore]):not([action^='javascript:'])"` | Set form selector, set empty for prevent forms uses Pjax
 `linkSelector:` | `string` | `a:not([data-pjax-ignore]):not([href^='#']):not([href^='javascript:'])"` | Set form selector, set empty for prevent links uses Pjax
 
@@ -93,6 +101,7 @@ Pjax.start({
 
 Method | Description
 --- | ---
+`Pjax.supported` | Return `true` if support this lib, otherwise return `false`
 `Pjax.remove("remove");` | Remove PJAX requests and events
 `Pjax.on("initiate", function(url, config) {...});` | Trigged when clicked in a link or submit a form
 `Pjax.on("done", function(url) {...});` | Trigged when page loaded using `$.jax`
@@ -100,7 +109,7 @@ Method | Description
 `Pjax.on("then", function(url) {...});` | Executes every time a request is completed, even if it fails or success.
 `Pjax.on("handler", function(data, callbackDone, callbackFail) {...});` | Create your owner response to Pjax.js
 
-You can change configs in `pjax.initiate` event, example:
+You can change configs in `initiate` event, example:
 
 ```html
 <div id="pjax-container">
@@ -144,7 +153,7 @@ if (isset($_SERVER['HTTP_X_PJAX'])) {
 }
 ```
 
-## Custom loader with PJAX
+## Custom loader with Pjax
 
 You can custom CSS, example change color and size, put in new CSS file or `<style>` tag:
 
@@ -159,11 +168,11 @@ If you need custom "more", first remove default loader:
 
 ```javascript
 Pjax.start({
-    "loader": false
+    loader: false
 });
 ```
 
-And after use `pjax.initiate` and `pjax.then` events:
+And after use `initiate` and `then` events:
 
 ```javascript
 Pjax.on("initiate", function () {
@@ -181,4 +190,20 @@ HTML:
 <div class="my-custom-loader">
     <img src="loader.gif">
 </div>
+```
+
+## Pjax handler response
+
+For create a custom responses for Pjax you can use `handler` event, example:
+
+```javascript
+Pjax.start({
+    updatehead: false //Prevent remove itens in head
+});
+
+Pjax.on("handler", function(hdata, config, done, fail) {
+    setTimeout(function () {
+        done(hdata.url, '<div id="pjax-container">Foo: ' + new Date() + '</div>', config, hdata.state);
+    }, 1000);
+});
 ```
