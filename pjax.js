@@ -1,5 +1,5 @@
 /*
- * Pjax.js 0.4.0
+ * Pjax.js 0.4.1
  *
  * Copyright (c) 2017 Guilherme Nascimento (brcontainer@yahoo.com.br)
  *
@@ -13,11 +13,13 @@
         xhr, config, timer, loader, cDone, cFail, cEl, h = w.history,
         np = true, dp = true, evts = {}, m = w.Element && w.Element.prototype,
         host = w.location.protocol.replace(/:/g, "") + "://" + w.location.host,
-        inputRe = /^(input|textarea|select|datalist|button|output)$/i
+        inputRe = /^(input|textarea|select|datalist|button|output)$/i,
+        reInload = /pjax\-inload/g, reStart = /pjax\-start/g,
+        reHide = /pjax\-hide/g, reEnd = /pjax\-end/g
     ;
 
     w.Pjax = {
-        "supported": m && h.pushState && (w.DOMParser || d.implementation.createHTMLDocument),
+        "supported": !!(m && h.pushState && (w.DOMParser || d.implementation.createHTMLDocument)),
         "remove": remove,
         "start": start,
         "on": function (name, callback) {
@@ -42,23 +44,20 @@
             d.body.appendChild(loader);
         }
 
-        loader.classList.remove("pjax-hide");
-        loader.classList.remove("pjax-end");
-        loader.classList.add("pjax-start");
+        loader.className = loader.className.replace(reHide, "").replace(reEnd, "") + " pjax-start";
 
         timer = setTimeout(function () {
-            loader.classList.add("pjax-inload");
+            loader.className += " pjax-inload";
         }, 10);
     }
 
     function hideLoader() {
         if (timer) clearTimeout(timer);
 
-        loader.classList.add("pjax-end");
+        loader.className += " pjax-end";
 
         timer = setTimeout(function () {
-            loader.classList.remove("pjax-inload");
-            loader.classList.add("pjax-hide");
+            loader.className = loader.className.replace(reInload, "") + " pjax-hide";
         }, 1000);
     }
 
@@ -80,7 +79,7 @@
         var pd = d.implementation.createHTMLDocument("");
 
         if (/^(<\!doctype|<html([^>]+>|>))/i.test(data.trim())) {
-            pd.documentElement.innerHTML = data;
+            pd.write(data);
         } else {
             pd.body.innerHTML = data;
         }
@@ -183,16 +182,16 @@
             }
         }
 
-        if (cfg.updatehead) pjaxUpdateHead(tmp.head);
+        if (cfg.updatehead && tmp.head) pjaxUpdateHead(tmp.head);
 
         d.title = title;
 
-        for (var i = 0, j = s.length; i < j; i++) {
+        for (var i = s.length - 1; i >= 0; i--) {
             var els = d.querySelectorAll(s[i]);
+            current = tmp.body.querySelector(s[i]);
 
-            for (var a = 0, b = els.length; a < b; a++) {
-                current = tmp.body.querySelector(s[i]);
-                if (current) els[0].innerHTML = current.innerHTML;
+            if (current) {
+                for (var j = els.length - 1; j >= 0; j--) els[j].innerHTML = current.innerHTML;
             }
         }
 
