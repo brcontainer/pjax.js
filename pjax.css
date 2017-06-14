@@ -1,5 +1,5 @@
 /*
- * Pjax.js 0.4.1
+ * Pjax.js 0.4.2
  *
  * Copyright (c) 2017 Guilherme Nascimento (brcontainer@yahoo.com.br)
  *
@@ -15,8 +15,8 @@
     pointer-events: none;
 }
 .pjax-loader .pjax-progress {
+    width: 0;
     height: 4px;
-    width: 0px;
     opacity: 1;
     background-color: rgb(119, 182, 255);
 }

@@ -32,8 +32,8 @@ Tested in:
 - Internet Explorer 10
 - Firefox
 - Google Chrome
-- Android 4.0
 - iOS 10
+- Android 2.3+
 
 ## Usage
 

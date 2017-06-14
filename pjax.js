@@ -1,5 +1,5 @@
 /*
- * Pjax.js 0.4.1
+ * Pjax.js 0.4.2
  *
  * Copyright (c) 2017 Guilherme Nascimento (brcontainer@yahoo.com.br)
  *
@@ -11,11 +11,9 @@
 
     var
         xhr, config, timer, loader, cDone, cFail, cEl, h = w.history,
-        np = true, dp = true, evts = {}, m = w.Element && w.Element.prototype,
+        np = false, dp = true, evts = {}, m = w.Element && w.Element.prototype,
         host = w.location.protocol.replace(/:/g, "") + "://" + w.location.host,
-        inputRe = /^(input|textarea|select|datalist|button|output)$/i,
-        reInload = /pjax\-inload/g, reStart = /pjax\-start/g,
-        reHide = /pjax\-hide/g, reEnd = /pjax\-end/g
+        inputRe = /^(input|textarea|select|datalist|button|output)$/i
     ;
 
     w.Pjax = {
@@ -35,16 +33,21 @@
     }
 
     function showLoader() {
-        if (timer) clearTimeout(timer);
+        if (timer) {
+            clearTimeout(timer);
+            timer = 0;
+            loader.className = "pjax-hide";
+            setTimeout(showLoader, 20);
+            return;
+        }
 
         if (!loader) {
             loader = d.createElement("div");
-            loader.className = "pjax-loader pjax-hide";
             loader.innerHTML = '<div class="pjax-progress"></div>';
             d.body.appendChild(loader);
         }
 
-        loader.className = loader.className.replace(reHide, "").replace(reEnd, "") + " pjax-start";
+        loader.className = "pjax-loader pjax-start";
 
         timer = setTimeout(function () {
             loader.className += " pjax-inload";
@@ -57,7 +60,7 @@
         loader.className += " pjax-end";
 
         timer = setTimeout(function () {
-            loader.className = loader.className.replace(reInload, "") + " pjax-hide";
+            loader.className += " pjax-hide";
         }, 1000);
     }
 
@@ -172,7 +175,7 @@
                 np = true;
                 h.go(-1);
                 setTimeout(function () {
-                    if (url === String(w.location)) return;
+                    if (url === w.location + "") return;
 
                     h.go(1);
                     np = false;
@@ -225,7 +228,7 @@
             v = data(el, "pjax-" + current);
 
             if (v) {
-                c = current.toLowerCase().replace(/\-([a-z])/g, function (a, b) {
+                c = current.toLowerCase().replace(/-([a-z])/g, function (a, b) {
                     return b.toUpperCase();
                 });
 
@@ -356,7 +359,7 @@
 
         e.preventDefault();
 
-        if (url === String(w.location) && method !== "POST") {
+        if (url === w.location + "" && method !== "POST") {
             if (config.updatecurrent) pjaxLoad(url, 2, method, el, data);
 
             return false;
@@ -376,13 +379,15 @@
     }
 
     function ready() {
-        var url = String(w.location);
+        var url = w.location + "", state = w.history.state;
 
-        h.replaceState({
-            "pjaxUrl": url,
-            "pjaxData": d.documentElement.outerHTML,
-            "pjaxConfig": config
-        }, d.title, url.substring(host.length));
+        if (!state || !state.pjaxUrl) {
+            h.replaceState({
+                "pjaxUrl": url,
+                "pjaxData": d.documentElement.outerHTML,
+                "pjaxConfig": config
+            }, d.title, url);
+        }
 
         pjaxEvent("initiate", showLoader);
         pjaxEvent("then", hideLoader);
