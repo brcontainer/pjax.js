@@ -1,6 +1,6 @@
 {
     "name": "pjax.js",
-    "version": "0.4.3",
+    "version": "0.4.4",
     "description": "Turn any website in a Pjax website (history.pushState + Ajax)",
     "main": "pjax.js",
     "scripts": {
@@ -8,7 +8,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+ssh://git@github.com/brcontainer/pjax.js.git"
+        "url": "https://github.com/brcontainer/pjax.js"
     },
     "keywords": [
         "pjax", "pushstate", "ajax", "history"
