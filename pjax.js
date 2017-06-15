@@ -1,5 +1,5 @@
 /*
- * Pjax.js 0.4.4
+ * Pjax.js 0.4.5
  *
  * Copyright (c) 2017 Guilherme Nascimento (brcontainer@yahoo.com.br)
  *

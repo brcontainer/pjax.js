@@ -1,6 +1,6 @@
 {
     "name": "pjax.js",
-    "version": "0.4.4",
+    "version": "0.4.5",
     "description": "Turn any website in a Pjax website (history.pushState + Ajax)",
     "main": "pjax.js",
     "scripts": {
@@ -18,5 +18,8 @@
     "bugs": {
         "url": "https://github.com/brcontainer/pjax.js/issues"
     },
-    "homepage": "https://github.com/brcontainer/pjax.js#readme"
+    "homepage": "https://github.com/brcontainer/pjax.js#readme",
+    "files": [
+        "pjax.js", "pjax.min.js", "pjax.css", "pjax.min.css"
+    ]
 }
