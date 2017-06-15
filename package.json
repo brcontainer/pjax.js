@@ -1,0 +1,22 @@
+{
+    "name": "pjax.js",
+    "version": "0.4.3",
+    "description": "Turn any website in a Pjax website (history.pushState + Ajax)",
+    "main": "pjax.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+ssh://git@github.com/brcontainer/pjax.js.git"
+    },
+    "keywords": [
+        "pjax", "pushstate", "ajax", "history"
+    ],
+    "author": "Guilherme Nascimento (brcontainer@yahoo.com.br)",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/brcontainer/pjax.js/issues"
+    },
+    "homepage": "https://github.com/brcontainer/pjax.js#readme"
+}

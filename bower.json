@@ -1,0 +1,16 @@
+{
+    "name": "pjax.js",
+    "homepage": "https://github.com/brcontainer/pjax.js",
+    "description": "Turn any website in a Pjax website (history.pushState + Ajax)",
+    "main": "pjax.js",
+    "license": "MIT",
+    "authors": [
+        "Guilherme Nascimento <brcontainer@yahoo.com.br>"
+    ],
+    "keywords": [
+        "pjax", "pushstate", "ajax", "history"
+    ],
+    "ignore": [
+        "examples/",
+    ]
+}

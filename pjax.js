@@ -1,5 +1,5 @@
 /*
- * Pjax.js 0.4.2
+ * Pjax.js 0.4.3
  *
  * Copyright (c) 2017 Guilherme Nascimento (brcontainer@yahoo.com.br)
  *
@@ -11,7 +11,7 @@
 
     var
         xhr, config, timer, loader, cDone, cFail, cEl, h = w.history,
-        np = false, dp = true, evts = {}, m = w.Element && w.Element.prototype,
+        np = false, domp = !!w.DOMParser, evts = {}, m = w.Element && w.Element.prototype,
         host = w.location.protocol.replace(/:/g, "") + "://" + w.location.host,
         inputRe = /^(input|textarea|select|datalist|button|output)$/i
     ;
@@ -28,6 +28,15 @@
         }
     };
 
+    if (domp) {
+        try {
+            var test = parseHtml('<html><head><title>1</title></head><body>1</body></html>');
+            domp = !!(test.head && test.title && test.body);
+        } catch (ee) {
+            domp = false;
+        }
+    }
+
     function isUnsigned(value) {
         return /^\d+$/.test(value);
     }
@@ -36,7 +45,7 @@
         if (timer) {
             clearTimeout(timer);
             timer = 0;
-            loader.className = "pjax-hide";
+            loader.className = "pjax-loader pjax-hide";
             setTimeout(showLoader, 20);
             return;
         }
@@ -50,6 +59,7 @@
         loader.className = "pjax-loader pjax-start";
 
         timer = setTimeout(function () {
+            timer = 0;
             loader.className += " pjax-inload";
         }, 10);
     }
@@ -60,6 +70,7 @@
         loader.className += " pjax-end";
 
         timer = setTimeout(function () {
+            timer = 0;
             loader.className += " pjax-hide";
         }, 1000);
     }
@@ -77,12 +88,18 @@
     }
 
     function parseHtml(data) {
-        if (dp && w.DOMParser) return (new DOMParser()).parseFromString(data, "text/html");
+        if (domp) return (new DOMParser()).parseFromString(data, "text/html");
 
         var pd = d.implementation.createHTMLDocument("");
 
-        if (/^(<\!doctype|<html([^>]+>|>))/i.test(data.trim())) {
-            pd.write(data);
+        if (/^(\s+|)(<\!doctype|<html([^>]+>|>))/i.test(data)) {
+            pd.documentElement.innerHTML = data;
+
+            /* Fix bug in Android */
+            if (!pd.body || !pd.head) {
+                pd = d.implementation.createHTMLDocument("");
+                pd.write(data);
+            }
         } else {
             pd.body.innerHTML = data;
         }
@@ -150,12 +167,6 @@
 
     function pjaxParse(url, data, cfg, state) {
         var current, tmp = parseHtml(data);
-
-        /* Fix bug in Android */
-        if (!tmp) {
-            dp = false;
-            tmp = parseHtml(data);
-        }
 
         var title = tmp.title || "", s = cfg.containers,
             x = isUnsigned(cfg.scrollLeft) ? cfg.scrollLeft : w.scrollX || w.pageXOffset,
