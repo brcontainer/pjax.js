@@ -1,5 +1,5 @@
 /*
- * Pjax.js 0.4.5
+ * Pjax.js 0.5.0
  *
  * Copyright (c) 2017 Guilherme Nascimento (brcontainer@yahoo.com.br)
  *
@@ -10,7 +10,7 @@
     "use strict";
 
     var
-        xhr, config, timer, loader, cDone, cFail, cEl, h = w.history,
+        xhr, config, timer, loader, cDone, cFail, cEl, h = w.history, URL = w.URL,
         np = false, domp = !!w.DOMParser, evts = {}, m = w.Element && w.Element.prototype,
         host = w.location.protocol.replace(/:/g, "") + "://" + w.location.host,
         inputRe = /^(input|textarea|select|datalist|button|output)$/i
@@ -20,6 +20,9 @@
         "supported": !!(m && h.pushState && (w.DOMParser || d.implementation.createHTMLDocument)),
         "remove": remove,
         "start": start,
+        "request": function (url, cfg) {
+            pjaxLoad(url, cfg.replace ? 2 : 1, cfg.method, null, cfg.data);
+        },
         "on": function (name, callback) {
             pjaxEvent(name, callback);
         },
@@ -75,10 +78,10 @@
         }, 1000);
     }
 
-    function serialize(el) {
+    function serialize(form) {
         var data = [];
 
-        [].slice.call(el.querySelectorAll("[name]")).forEach(function (el) {
+        [].slice.call(form.querySelectorAll("[name]")).forEach(function (el) {
             if (el.name && inputRe.test(el.tagName)) {
                 data.push(encodeURIComponent(el.name) + "=" + encodeURIComponent(el.value));
             }
@@ -88,7 +91,7 @@
     }
 
     function parseHtml(data) {
-        if (domp) return (new DOMParser()).parseFromString(data, "text/html");
+        if (domp) return (new DOMParser).parseFromString(data, "text/html");
 
         var pd = d.implementation.createHTMLDocument("");
 
@@ -185,27 +188,29 @@
                 /* Fix bug in Android */
                 np = true;
                 h.go(-1);
-                setTimeout(function () {
-                    if (url === w.location + "") return;
 
-                    h.go(1);
+                setTimeout(function () {
+                    if (url !== w.location + "") h.go(1);
                     np = false;
-                }, 20);
+                }, 50);
             } else if (state === 2) {
                 h.replaceState(c, title, url);
             }
         }
+
+        if (evts.dom && pjaxTrigger("dom", url, tmp) === false) return;
 
         if (cfg.updatehead && tmp.head) pjaxUpdateHead(tmp.head);
 
         d.title = title;
 
         for (var i = s.length - 1; i >= 0; i--) {
-            var els = d.querySelectorAll(s[i]);
             current = tmp.body.querySelector(s[i]);
 
             if (current) {
-                for (var j = els.length - 1; j >= 0; j--) els[j].innerHTML = current.innerHTML;
+                [].slice.call(d.querySelectorAll(s[i])).forEach(function (el) {
+                    el.innerHTML = current.innerHTML;
+                });
             }
         }
 
@@ -218,8 +223,10 @@
         var d = el.getAttribute("data-" + name), resp;
 
         if (d === "true" || d === "false") {
-            resp = d === "true";
-        } else if (/^\[*.?\]$|^\{*.?\}$/.test(d)) {
+            return d === "true";
+        } else if (!isNaN(d)) {
+            return parseFloat(d);
+        } else if (/^\[[\s\S]+\]$|^\{[^:]+[:][\s\S]+\}$/.test(d)) {
             try { resp = JSON.parse(d); } catch (e) {}
         }
 
@@ -232,6 +239,8 @@
                 "containers", "updatecurrent", "updatehead", "loader",
                 "scroll-left", "scroll-right", "done", "fail"
             ];
+
+        if (!el) return cfg;
 
         for (var i = attrs.length - 1; i >= 0; i--) {
             current = attrs[i];
@@ -270,6 +279,24 @@
         cFail = cDone = u;
     }
 
+    function pjaxNoCache(url) {
+        var u, n = "_=" + (+new Date);
+
+        if (!URL) {
+            u = new URL(url);
+        } else {
+            u = d.createElement("a");
+            u.href = url;
+        }
+
+        u.search += u.search ? ("&" + n) : ("?" + n);
+
+        url = u.toString();
+        u = null;
+
+        return url;
+    }
+
     function pjaxLoad(url, state, method, el, data) {
         pjaxAbort();
 
@@ -297,8 +324,12 @@
             "X-PJAX": "true"
         };
 
-        xhr = new XMLHttpRequest();
-        xhr.open(method, config.proxy || url, true);
+        url = config.proxy || url;
+
+        if (config.nocache) url = pjaxNoCache(url);
+
+        xhr = new XMLHttpRequest;
+        xhr.open(method, url, true);
 
         for (var k in headers) xhr.setRequestHeader(k, headers[k]);
 
@@ -309,7 +340,6 @@
 
             if (status >= 200 && status < 300 || status === 304) {
                 pjaxDone(url, this.responseText, cfg, state);
-                pjaxTrigger("done", url);
             } else {
                 pjaxFail(url, status);
             }
@@ -435,6 +465,7 @@
             "updatehead": true,
             "scrollLeft": 0,
             "scrollTop": 0,
+            "nocache": false,
             "loader": true,
             "proxy": ""
         };
@@ -448,7 +479,7 @@
         if (config.linkSelector) d.addEventListener("click", pjaxLink);
         if (config.formSelector) d.addEventListener("submit", pjaxForm);
 
-        if (/^(interactive|complete)$/i.test(d.readyState)) {
+        if (/^(interactive|complete)$/.test(d.readyState)) {
             ready();
         } else {
             d.addEventListener("DOMContentLoaded", ready);

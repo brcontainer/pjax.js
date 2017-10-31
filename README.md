@@ -63,7 +63,8 @@ Property | type | default | Description
 `scrollLeft:` | `number` | `0` | After loading a page via PJAX you can define where scrollLeft should scroll
 `scrollTop:` | `number` | `0` | After loading a page via PJAX you can define where scrollTop should scroll
 `loader:` | `bool` | `true` | Adds the native Pjax loader, if you want to create a loader of your own, set it to `false`
-`proxy:` | `string` | `false` | Set Web Proxy
+`nocache:` | `bool` | `false` | Prevent cache
+`proxy:` | `string` | `""` | Set Web Proxy
 `formSelector:` | `string` | `form:not([data-pjax-ignore]):not([action^='javascript:'])"` | Set form selector, set empty for prevent forms uses Pjax
 `linkSelector:` | `string` | `a:not([data-pjax-ignore]):not([href^='#']):not([href^='javascript:'])"` | Set form selector, set empty for prevent links uses Pjax
 
@@ -97,7 +98,7 @@ Pjax.start({
 </script>
 ```
 
-## Pjax API
+## Pjax API and Events
 
 Method | Description
 --- | ---
@@ -108,7 +109,10 @@ Method | Description
 `Pjax.on("fail", function(url, status, error) {...});` | Trigged when page failed to load, `status` return HTTP code and `error` return message error
 `Pjax.on("then", function(url) {...});` | Executes every time a request is completed, even if it fails or success.
 `Pjax.on("history", function(url, stateData) {...});` | Executes every use back or forward
-`Pjax.on("handler", function(data, config, callbackDone, callbackFail) {...});` | Create your owner response to Pjax.js
+`Pjax.on("handler", function(data, config, callbackDone, callbackFail) {...});` | Create your owner response to Pjax.js request
+`Pjax.on("dom", function(url, newdocument) {...});` | Allows you to manipulate an element change manually, for example you can create transitions or change newdocument
+
+> Tip: You can use `Pjax.on("dom", ...);` for remove events in DOM
 
 You can change configs in `initiate` event, example:
 

@@ -1105,9 +1105,15 @@ body .markdown-body
 <td>Adds the native Pjax loader, if you want to create a loader of your own, set it to <code>false</code></td>
 </tr>
 <tr>
+<td><code>nocache:</code></td>
+<td><code>bool</code></td>
+<td><code>false</code></td>
+<td>Prevent cache</td>
+</tr>
+<tr>
 <td><code>proxy:</code></td>
 <td><code>string</code></td>
-<td><code>false</code></td>
+<td><code>""</code></td>
 <td>Set Web Proxy</td>
 </tr>
 <tr>
@@ -1186,7 +1192,7 @@ Pjax.start({
 &lt;/script&gt;
 </code></pre>
 
-<h2 id="pjax-api"><a name="user-content-pjax-api" href="#pjax-api" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Pjax API</h2>
+<h2 id="pjax-api-and-events"><a name="user-content-pjax-api-and-events" href="#pjax-api-and-events" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Pjax API and Events</h2>
 <table>
 <thead>
 <tr>
@@ -1225,10 +1231,17 @@ Pjax.start({
 </tr>
 <tr>
 <td><code>Pjax.on("handler", function(data, config, callbackDone, callbackFail) {...});</code></td>
-<td>Create your owner response to Pjax.js</td>
+<td>Create your owner response to Pjax.js request</td>
+</tr>
+<tr>
+<td><code>Pjax.on("dom", function(url, newdocument) {...});</code></td>
+<td>Allows you to manipulate an element change manually, for example you can create transitions or change newdocument</td>
 </tr>
 </tbody>
 </table>
+<blockquote>
+<p>Tip: You can use <code>Pjax.on("dom", ...);</code> for remove events in DOM</p>
+</blockquote>
 <p>You can change configs in <code>initiate</code> event, example:</p>
 <pre><code class="html">&lt;div id=&quot;pjax-container&quot;&gt;
     &lt;div id=&quot;filter&quot;&gt;
