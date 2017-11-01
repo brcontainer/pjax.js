@@ -1,5 +1,5 @@
 /*
- * Pjax.js 0.5.0
+ * Pjax.js 0.5.1
  *
  * Copyright (c) 2017 Guilherme Nascimento (brcontainer@yahoo.com.br)
  *
@@ -324,12 +324,12 @@
             "X-PJAX": "true"
         };
 
-        url = config.proxy || url;
+        var curl = config.proxy || url;
 
-        if (config.nocache) url = pjaxNoCache(url);
+        if (config.nocache) curl = pjaxNoCache(url);
 
         xhr = new XMLHttpRequest;
-        xhr.open(method, url, true);
+        xhr.open(method, curl, true);
 
         for (var k in headers) xhr.setRequestHeader(k, headers[k]);
 
