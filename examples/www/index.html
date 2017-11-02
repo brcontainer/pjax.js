@@ -5,10 +5,12 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=0">
     <link rel="icon" type="image/x-icon" href="https://assets-cdn.github.com/favicon.ico">
-    <link rel="stylesheet" type="text/css" href="assets/pjax.css">
-    <script src="assets/pjax.js"></script>
-    <script>
-    Pjax.start();
+    <link rel="stylesheet" type="text/css" href="assets/pjax.css" data-pjax-resource="true">
+    <script src="assets/pjax.js" data-pjax-resource="true"></script>
+    <script data-pjax-resource="true">
+    Pjax.start({
+        "proxy": "proxy.php"
+    });
     </script>
     <style type="text/css">
     #notice {

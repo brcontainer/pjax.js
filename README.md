@@ -43,19 +43,31 @@ For use:
 Pjax.start();
 ```
 
-For change configs use like this:
+## Pjax API
 
-```js
-Pjax.start({
-    containers: [ "#my-container" ], //Change container element
-    scrollLeft: -1, //Disable autoscroll
-    scrollTop: -1 //Disable autoscroll
-});
-```
+Method | Description
+--- | ---
+`Pjax.supported` | Return `true` if support this lib, otherwise return `false`
+`Pjax.remove("remove");` | Remove PJAX requests and events
+`Pjax.on(event", function(...) {...});` | Define an event
+
+## Pjax Events
+
+Example | Description
+--- | ---
+`Pjax.on("initiate", function(url, config) {...});` | Trigged when clicked in a link or submit a form
+`Pjax.on("done", function(url) {...});` | Trigged when page loaded using `$.jax`
+`Pjax.on("fail", function(url, status, error) {...});` | Trigged when page failed to load, `status` return HTTP code and `error` return message error
+`Pjax.on("then", function(url) {...});` | Executes every time a request is completed, even if it fails or success.
+`Pjax.on("history", function(url, stateData) {...});` | Executes every use back or forward
+`Pjax.on("handler", function(data, config, callbackDone, callbackFail) {...});` | Create your owner response to Pjax.js request
+`Pjax.on("dom", function(url, newdocument) {...});` | Allows you to manipulate an element change manually, for example you can create transitions or change newdocument
+
+> Tip: You can use `Pjax.on("dom", ...);` for remove events in DOM
 
 ## Pjax configs
 
-Property | type | default | Description
+Property | type | default | description
 --- | --- | --- | ---
 `containers:` | `array` | `[ "#pjax-container" ]` | Informs which elements to update on the page
 `updatecurrent:` | `bool` | `false` | If `true` request same url in used by current page is executed `history.replaceState`, otherwise nothing will be executed
@@ -68,17 +80,31 @@ Property | type | default | Description
 `formSelector:` | `string` | `form:not([data-pjax-ignore]):not([action^='javascript:'])"` | Set form selector, set empty for prevent forms uses Pjax
 `linkSelector:` | `string` | `a:not([data-pjax-ignore]):not([href^='#']):not([href^='javascript:'])"` | Set form selector, set empty for prevent links uses Pjax
 
+## PJAX with HTML5
+
 If need overwrite properties for specific link or form you can config using HTML attributes:
 
-Property | equivalent | example
---- | --- | ---
-`data-pjax-containers` | `containers:` | `<a href="..." data-pjax-containers="[ &quot;#foo&quot;, &quot;#bar&quot;, &quot;#baz&quot; ]"`
-`data-pjax-updatehead` | `updatehead:` | `<a href="..." data-pjax-updatehead="false"`
-`data-pjax-scroll-left` | `scrollLeft:` | `<form action="..." data-pjax-scroll-left="10"`
-`data-pjax-scroll-top` | `scrollTop:` | `<form action="..." data-pjax-scroll-top="-1"`
-`data-pjax-loader` | `loader:` | `<a href="..." data-pjax-loader="false"`
-`data-pjax-done` | - | `<a href="..." data-pjax-done="console.log('success', this);"`
-`data-pjax-fail` | - | `<a href="..." data-pjax-fail="console.log('error', this);"`
+Property | equivalent | example | description
+--- | --- | --- | ---
+`data-pjax-containers` | `containers:` | `<a href="..." data-pjax-containers="[ &quot;#foo&quot;, &quot;#bar&quot;, &quot;#baz&quot; ]"` | Adjusts the containers when the request comes from a specific form or link
+`data-pjax-updatehead` | `updatehead:` | `<a href="..." data-pjax-updatehead="false"` | Allow/Disallow head tag update when the request comes from a specific form or link
+`data-pjax-scroll-left` | `scrollLeft:` | `<form action="..." data-pjax-scroll-left="10"` | custom scroll-left to specific form or link
+`data-pjax-scroll-top` | `scrollTop:` | `<form action="..." data-pjax-scroll-top="-1"` | custom scroll-top to specific form or link
+`data-pjax-loader` | `loader:` | `<a href="..." data-pjax-loader="false"` | Allow/Disallow loader animate to specific form or link
+`data-pjax-done` | - | `<a href="..." data-pjax-done="console.log('success', this);"` | Custom "done" event to specific form or link
+`data-pjax-fail` | - | `<a href="..." data-pjax-fail="console.log('error', this);"` | Custom "error" event to specific form or link
+`data-pjax-ignore` | - | `<a href="..." data-pjax-ignore="true">` | Normal navigation to specific form or link
+`data-pjax-resource` | - | `<link href="..." data-pjax-resource="true">` | Prevent remove element after update DOM (for now it only works in the `<head>`)
+
+For change configs use like this:
+
+```js
+Pjax.start({
+    containers: [ "#my-container" ], //Change container element
+    scrollLeft: -1, //Disable autoscroll
+    scrollTop: -1 //Disable autoscroll
+});
+```
 
 ## Update two elements (or more)
 
@@ -97,22 +123,6 @@ Pjax.start({
 });
 </script>
 ```
-
-## Pjax API and Events
-
-Method | Description
---- | ---
-`Pjax.supported` | Return `true` if support this lib, otherwise return `false`
-`Pjax.remove("remove");` | Remove PJAX requests and events
-`Pjax.on("initiate", function(url, config) {...});` | Trigged when clicked in a link or submit a form
-`Pjax.on("done", function(url) {...});` | Trigged when page loaded using `$.jax`
-`Pjax.on("fail", function(url, status, error) {...});` | Trigged when page failed to load, `status` return HTTP code and `error` return message error
-`Pjax.on("then", function(url) {...});` | Executes every time a request is completed, even if it fails or success.
-`Pjax.on("history", function(url, stateData) {...});` | Executes every use back or forward
-`Pjax.on("handler", function(data, config, callbackDone, callbackFail) {...});` | Create your owner response to Pjax.js request
-`Pjax.on("dom", function(url, newdocument) {...});` | Allows you to manipulate an element change manually, for example you can create transitions or change newdocument
-
-> Tip: You can use `Pjax.on("dom", ...);` for remove events in DOM
 
 You can change configs in `initiate` event, example:
 

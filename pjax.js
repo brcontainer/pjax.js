@@ -9,11 +9,11 @@
 (function (d, w, u) {
     "use strict";
 
-    var
-        xhr, config, timer, loader, cDone, cFail, cEl, h = w.history, URL = w.URL,
+    var xhr, config, timer, loader, cDone, cFail, cEl, h = w.history, URL = w.URL,
         np = false, domp = !!w.DOMParser, evts = {}, m = w.Element && w.Element.prototype,
         host = w.location.protocol.replace(/:/g, "") + "://" + w.location.host,
-        inputRe = /^(input|textarea|select|datalist|button|output)$/i
+        inputRe = /^(input|textarea|select|datalist|button|output)$/i,
+        started = false
     ;
 
     w.Pjax = {
@@ -107,16 +107,16 @@
     }
 
     function pjaxUpdateHead(head) {
-        var i, index, frag, nodes = [], j = head.childNodes;
+        var i, index, frag, nodes = [], j = head.children;
 
         for (i = j.length - 1; i >= 0; i--) {
             if (j[i].tagName !== "TITLE") nodes.push(j[i].outerHTML);
         }
 
-        j = d.head.childNodes;
+        j = d.head.children;
 
         for (i = j.length - 1; i >= 0; i--) {
-            if (j[i].tagName === "TITLE") continue;
+            if (j[i].tagName === "TITLE" || data(j[i], "resource")) continue;
 
             index = nodes.indexOf(j[i].outerHTML);
 
@@ -143,14 +143,14 @@
         for (var ce = evts[name], i = 0; i < ce.length; i++) ce[i](arg1, arg2, arg3);
     }
 
-    function pjaxEvent(name, callback, remove) {
+    function pjaxEvent(name, callback, re) {
         if (typeof callback !== "function") return;
 
         if (!evts[name]) evts[name] = [];
 
         var ce = evts[name];
 
-        if (!remove) {
+        if (!re) {
             ce.push(callback);
             return;
         }
@@ -216,7 +216,7 @@
     }
 
     function data(el, name) {
-        var d = el.getAttribute("data-" + name), resp;
+        var d = el.getAttribute("data-pjax-" + name), resp;
 
         if (d === "true" || d === "false") {
             return d === "true";
@@ -241,7 +241,7 @@
         for (var i = attrs.length - 1; i >= 0; i--) {
             current = attrs[i];
 
-            v = data(el, "pjax-" + current);
+            v = data(el, current);
 
             if (v) {
                 c = current.toLowerCase().replace(/-([a-z])/g, function (a, b) {
@@ -400,13 +400,9 @@
 
         if (url === w.location + "" && method !== "POST") {
             if (config.updatecurrent) pjaxLoad(url, 2, method, el, data);
-
-            return false;
         }
 
         pjaxLoad(url, 1, method, el, data);
-
-        return false;
     }
 
     function pjaxState(e) {
@@ -418,6 +414,10 @@
     }
 
     function ready() {
+        if (started) return;
+
+        started = false;
+
         var url = w.location + "", state = w.history.state;
 
         if (!state || !state.pjaxUrl) {
@@ -433,10 +433,13 @@
 
         w.addEventListener("unload", pjaxAbort);
         w.addEventListener("popstate", pjaxState);
+
+        if (config.linkSelector) d.addEventListener("click", pjaxLink);
+        if (config.formSelector) d.addEventListener("submit", pjaxForm);
     }
 
     function remove() {
-        if (!config) return;
+        if (!config || !started) return;
 
         if (config.load) {
             pjaxEvent("initiate", showLoader, true);
@@ -448,6 +451,9 @@
 
         w.removeEventListener("unload", pjaxAbort);
         w.removeEventListener("popstate", pjaxState);
+
+        started = false;
+        config = u;
     }
 
     function start(opts) {
@@ -473,9 +479,6 @@
         }
 
         opts = null;
-
-        if (config.linkSelector) d.addEventListener("click", pjaxLink);
-        if (config.formSelector) d.addEventListener("submit", pjaxForm);
 
         if (/^(interactive|complete)$/.test(d.readyState)) {
             ready();

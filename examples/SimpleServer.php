@@ -45,6 +45,10 @@ if (is_file($current)) {
         case 'css':
             $type = 'text/css';
         break;
+        case 'php':
+            header('Content-Type: text/html');
+            require $current;
+            exit;
         default:
             $type = 'application/octet-stream';
     }

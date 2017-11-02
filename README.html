@@ -1049,14 +1049,71 @@ body .markdown-body
 <pre><code class="js">Pjax.start();
 </code></pre>
 
-<p>For change configs use like this:</p>
-<pre><code class="js">Pjax.start({
-    containers: [ &quot;#my-container&quot; ], //Change container element
-    scrollLeft: -1, //Disable autoscroll
-    scrollTop: -1 //Disable autoscroll
-});
-</code></pre>
-
+<h2 id="pjax-api"><a name="user-content-pjax-api" href="#pjax-api" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Pjax API</h2>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Pjax.supported</code></td>
+<td>Return <code>true</code> if support this lib, otherwise return <code>false</code></td>
+</tr>
+<tr>
+<td><code>Pjax.remove("remove");</code></td>
+<td>Remove PJAX requests and events</td>
+</tr>
+<tr>
+<td><code>Pjax.on(event", function(...) {...});</code></td>
+<td>Define an event</td>
+</tr>
+</tbody>
+</table>
+<h2 id="pjax-events"><a name="user-content-pjax-events" href="#pjax-events" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Pjax Events</h2>
+<table>
+<thead>
+<tr>
+<th>Example</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Pjax.on("initiate", function(url, config) {...});</code></td>
+<td>Trigged when clicked in a link or submit a form</td>
+</tr>
+<tr>
+<td><code>Pjax.on("done", function(url) {...});</code></td>
+<td>Trigged when page loaded using <code>$.jax</code></td>
+</tr>
+<tr>
+<td><code>Pjax.on("fail", function(url, status, error) {...});</code></td>
+<td>Trigged when page failed to load, <code>status</code> return HTTP code and <code>error</code> return message error</td>
+</tr>
+<tr>
+<td><code>Pjax.on("then", function(url) {...});</code></td>
+<td>Executes every time a request is completed, even if it fails or success.</td>
+</tr>
+<tr>
+<td><code>Pjax.on("history", function(url, stateData) {...});</code></td>
+<td>Executes every use back or forward</td>
+</tr>
+<tr>
+<td><code>Pjax.on("handler", function(data, config, callbackDone, callbackFail) {...});</code></td>
+<td>Create your owner response to Pjax.js request</td>
+</tr>
+<tr>
+<td><code>Pjax.on("dom", function(url, newdocument) {...});</code></td>
+<td>Allows you to manipulate an element change manually, for example you can create transitions or change newdocument</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Tip: You can use <code>Pjax.on("dom", ...);</code> for remove events in DOM</p>
+</blockquote>
 <h2 id="pjax-configs"><a name="user-content-pjax-configs" href="#pjax-configs" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Pjax configs</h2>
 <table>
 <thead>
@@ -1064,7 +1121,7 @@ body .markdown-body
 <th>Property</th>
 <th>type</th>
 <th>default</th>
-<th>Description</th>
+<th>description</th>
 </tr>
 </thead>
 <tbody>
@@ -1130,6 +1187,7 @@ body .markdown-body
 </tr>
 </tbody>
 </table>
+<h2 id="pjax-with-html5"><a name="user-content-pjax-with-html5" href="#pjax-with-html5" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>PJAX with HTML5</h2>
 <p>If need overwrite properties for specific link or form you can config using HTML attributes:</p>
 <table>
 <thead>
@@ -1137,6 +1195,7 @@ body .markdown-body
 <th>Property</th>
 <th>equivalent</th>
 <th>example</th>
+<th>description</th>
 </tr>
 </thead>
 <tbody>
@@ -1144,39 +1203,66 @@ body .markdown-body
 <td><code>data-pjax-containers</code></td>
 <td><code>containers:</code></td>
 <td><code>&lt;a href="..." data-pjax-containers="[ &amp;quot;#foo&amp;quot;, &amp;quot;#bar&amp;quot;, &amp;quot;#baz&amp;quot; ]"</code></td>
+<td>Adjusts the containers when the request comes from a specific form or link</td>
 </tr>
 <tr>
 <td><code>data-pjax-updatehead</code></td>
 <td><code>updatehead:</code></td>
 <td><code>&lt;a href="..." data-pjax-updatehead="false"</code></td>
+<td>Allow/Disallow head tag update when the request comes from a specific form or link</td>
 </tr>
 <tr>
 <td><code>data-pjax-scroll-left</code></td>
 <td><code>scrollLeft:</code></td>
 <td><code>&lt;form action="..." data-pjax-scroll-left="10"</code></td>
+<td>custom scroll-left to specific form or link</td>
 </tr>
 <tr>
 <td><code>data-pjax-scroll-top</code></td>
 <td><code>scrollTop:</code></td>
 <td><code>&lt;form action="..." data-pjax-scroll-top="-1"</code></td>
+<td>custom scroll-top to specific form or link</td>
 </tr>
 <tr>
 <td><code>data-pjax-loader</code></td>
 <td><code>loader:</code></td>
 <td><code>&lt;a href="..." data-pjax-loader="false"</code></td>
+<td>Allow/Disallow loader animate to specific form or link</td>
 </tr>
 <tr>
 <td><code>data-pjax-done</code></td>
 <td>-</td>
 <td><code>&lt;a href="..." data-pjax-done="console.log('success', this);"</code></td>
+<td>Custom &ldquo;done&rdquo; event to specific form or link</td>
 </tr>
 <tr>
 <td><code>data-pjax-fail</code></td>
 <td>-</td>
 <td><code>&lt;a href="..." data-pjax-fail="console.log('error', this);"</code></td>
+<td>Custom &ldquo;error&rdquo; event to specific form or link</td>
+</tr>
+<tr>
+<td><code>data-pjax-ignore</code></td>
+<td>-</td>
+<td><code>&lt;a href="..." data-pjax-ignore="true"&gt;</code></td>
+<td>Normal navigation to specific form or link</td>
+</tr>
+<tr>
+<td><code>data-pjax-resource</code></td>
+<td>-</td>
+<td><code>&lt;link href="..." data-pjax-resource="true"&gt;</code></td>
+<td>Prevent remove element after update DOM (for now it only works in the <code>&lt;head&gt;</code>)</td>
 </tr>
 </tbody>
 </table>
+<p>For change configs use like this:</p>
+<pre><code class="js">Pjax.start({
+    containers: [ &quot;#my-container&quot; ], //Change container element
+    scrollLeft: -1, //Disable autoscroll
+    scrollTop: -1 //Disable autoscroll
+});
+</code></pre>
+
 <h2 id="update-two-elements-or-more"><a name="user-content-update-two-elements-or-more" href="#update-two-elements-or-more" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Update two elements (or more)</h2>
 <p>You can change the element you want to update or even add more elements, eg.:</p>
 <pre><code class="html">&lt;div id=&quot;navbar&quot;&gt;
@@ -1192,56 +1278,6 @@ Pjax.start({
 &lt;/script&gt;
 </code></pre>
 
-<h2 id="pjax-api-and-events"><a name="user-content-pjax-api-and-events" href="#pjax-api-and-events" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Pjax API and Events</h2>
-<table>
-<thead>
-<tr>
-<th>Method</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>Pjax.supported</code></td>
-<td>Return <code>true</code> if support this lib, otherwise return <code>false</code></td>
-</tr>
-<tr>
-<td><code>Pjax.remove("remove");</code></td>
-<td>Remove PJAX requests and events</td>
-</tr>
-<tr>
-<td><code>Pjax.on("initiate", function(url, config) {...});</code></td>
-<td>Trigged when clicked in a link or submit a form</td>
-</tr>
-<tr>
-<td><code>Pjax.on("done", function(url) {...});</code></td>
-<td>Trigged when page loaded using <code>$.jax</code></td>
-</tr>
-<tr>
-<td><code>Pjax.on("fail", function(url, status, error) {...});</code></td>
-<td>Trigged when page failed to load, <code>status</code> return HTTP code and <code>error</code> return message error</td>
-</tr>
-<tr>
-<td><code>Pjax.on("then", function(url) {...});</code></td>
-<td>Executes every time a request is completed, even if it fails or success.</td>
-</tr>
-<tr>
-<td><code>Pjax.on("history", function(url, stateData) {...});</code></td>
-<td>Executes every use back or forward</td>
-</tr>
-<tr>
-<td><code>Pjax.on("handler", function(data, config, callbackDone, callbackFail) {...});</code></td>
-<td>Create your owner response to Pjax.js request</td>
-</tr>
-<tr>
-<td><code>Pjax.on("dom", function(url, newdocument) {...});</code></td>
-<td>Allows you to manipulate an element change manually, for example you can create transitions or change newdocument</td>
-</tr>
-</tbody>
-</table>
-<blockquote>
-<p>Tip: You can use <code>Pjax.on("dom", ...);</code> for remove events in DOM</p>
-</blockquote>
 <p>You can change configs in <code>initiate</code> event, example:</p>
 <pre><code class="html">&lt;div id=&quot;pjax-container&quot;&gt;
     &lt;div id=&quot;filter&quot;&gt;
