@@ -1,5 +1,5 @@
 /*
- * Pjax.js 0.5.1
+ * Pjax.js 0.5.2
  *
  * Copyright (c) 2017 Guilherme Nascimento (brcontainer@yahoo.com.br)
  *
@@ -38,10 +38,6 @@
         } catch (ee) {
             domp = false;
         }
-    }
-
-    function isUnsigned(value) {
-        return /^\d+$/.test(value);
     }
 
     function showLoader() {
@@ -172,8 +168,8 @@
         var current, tmp = parseHtml(data);
 
         var title = tmp.title || "", s = cfg.containers,
-            x = isUnsigned(cfg.scrollLeft) ? cfg.scrollLeft : w.scrollX || w.pageXOffset,
-            y = isUnsigned(cfg.scrollTop) ? cfg.scrollTop : w.scrollY || w.pageYOffset;
+            x = cfg.scrollLeft > 0 ? +cfg.scrollLeft : w.scrollX || w.pageXOffset,
+            y = cfg.scrollTop > 0 ? +cfg.scrollTop : w.scrollY || w.pageYOffset;
 
         if (state) {
             var c = {
@@ -349,6 +345,8 @@
     }
 
     function pjaxLink(e) {
+        if (e.button !== 0) return;
+
         var url, l, el = e.target;
 
         if (el.matches(config.linkSelector)) {
