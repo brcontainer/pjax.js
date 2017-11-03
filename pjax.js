@@ -10,7 +10,7 @@
     "use strict";
 
     var
-        xhr, config, timer, loader, cDone, cFail, cEl,
+        xhr, config, timer, loader,
         h = w.history,
         URL = w.URL,
         domp = !!w.DOMParser,
@@ -97,7 +97,7 @@
 
         var pd = docim.createHTMLDocument("");
 
-        if (/^(\s+|)(<(\!doctype|html)(\s+|\s[\s\S]+|)>)/i.test(data)) {
+        if (/^\s*<(\!doctype|html)[^>]*>/i.test(data)) {
             pd.documentElement.innerHTML = data;
 
             if (!pd.body || !pd.head) {
@@ -253,24 +253,21 @@
         return cfg;
     }
 
-    function pjaxDone(url, data, cfg, state) {
-        pjaxParse(url, data, cfg, state);
-        pjaxTrigger("done", url);
+    function pjaxFinish(url, cfg, state, el, callback, data) {
+        if (data) {
+            pjaxParse(url, data, cfg, state);
+        }
+
+        pjaxTrigger(data ? "done" : "fail", url);
         pjaxTrigger("then", url);
 
-        if (cDone) new Function(cDone).call(cEl);
-    }
+        if (callback) new Function(callback).call(el);
 
-    function pjaxFail(url, status) {
-        pjaxTrigger("fail", url, status);
-        pjaxTrigger("then", url);
-
-        if (cFail) new Function(cFail).call(cEl);
+        if (cfg.loader) hideLoader();
     }
 
     function pjaxAbort() {
         if (xhr) xhr.abort();
-        cFail = cDone = u;
     }
 
     function pjaxNoCache(url) {
@@ -296,11 +293,9 @@
 
         var cfg = pjaxAttributes(el);
 
-        cDone = cfg.done;
-        cFail = cfg.fail;
-        cEl = el;
-
         pjaxTrigger("initiate", url, cfg);
+
+        if (cfg.loader) showLoader();
 
         if (evts.handler) {
             pjaxTrigger("handler", {
@@ -308,7 +303,7 @@
                 "state": state,
                 "method": method,
                 "element": el
-            }, cfg, pjaxDone, pjaxFail);
+            }, cfg, pjaxFinish);
             return;
         }
 
@@ -333,9 +328,9 @@
             var status = this.status;
 
             if (status >= 200 && status < 300 || status === 304) {
-                pjaxDone(url, this.responseText, cfg, state);
+                pjaxFinish(url, cfg, state, el, cfg.done, this.responseText);
             } else {
-                pjaxFail(url, status);
+                pjaxFinish(url, cfg, status, el, cfg.fail);
             }
         };
 
@@ -427,9 +422,6 @@
             }, d.title, url);
         }
 
-        pjaxEvent("initiate", showLoader);
-        pjaxEvent("then", hideLoader);
-
         w.addEventListener("unload", pjaxAbort);
         w.addEventListener("popstate", pjaxState);
 
@@ -439,11 +431,6 @@
 
     function remove() {
         if (!config || !started) return;
-
-        if (config.load) {
-            pjaxEvent("initiate", showLoader, true);
-            pjaxEvent("then", hideLoader, true);
-        }
 
         d.removeEventListener("click", pjaxLink);
         d.removeEventListener("submit", pjaxForm);
