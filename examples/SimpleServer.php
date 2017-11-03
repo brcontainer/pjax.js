@@ -30,6 +30,7 @@ if (is_file($current)) {
     $extension = pathinfo($current, PATHINFO_EXTENSION);
 
     switch ($extension) {
+        case 'htm':
         case 'html':
             $type = 'text/html; charset=UTF-8';
         break;
@@ -46,7 +47,7 @@ if (is_file($current)) {
             $type = 'text/css';
         break;
         case 'php':
-            header('Content-Type: text/html');
+            header('Content-Type: text/html; charset=UTF-8');
             require $current;
             exit;
         default:
@@ -59,7 +60,7 @@ if (is_file($current)) {
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $req = str_replace('<', '&lt;', file_get_contents('php://input'));
-        $req = str_replace('{FORMDATA}', $req, $data);
+        $data = str_replace('{FORMDATA}', $req, $data);
     }
 
     echo $data;

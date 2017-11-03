@@ -93,7 +93,7 @@ class ServerHandler implements HttpHandler
             current = assets + path.substring(7);
         }
 
-        if (current.endsWith(".html")) {
+        if (current.endsWith(".html") || current.endsWith(".htm")) {
             type = "text/html; charset=UTF-8";
         } else if (current.endsWith(".txt")) {
             type = "text/plain; charset=UTF-8";

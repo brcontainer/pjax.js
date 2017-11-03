@@ -1,5 +1,5 @@
 /*
- * Pjax.js 0.5.2
+ * Pjax.js 0.5.3
  *
  * Copyright (c) 2017 Guilherme Nascimento (brcontainer@yahoo.com.br)
  *
@@ -9,15 +9,21 @@
 (function (d, w, u) {
     "use strict";
 
-    var xhr, config, timer, loader, cDone, cFail, cEl, h = w.history, URL = w.URL,
-        np = false, domp = !!w.DOMParser, evts = {}, m = w.Element && w.Element.prototype,
+    var
+        xhr, config, timer, loader, cDone, cFail, cEl,
+        h = w.history,
+        URL = w.URL,
+        domp = !!w.DOMParser,
+        evts = {},
+        docim = d.implementation,
         host = w.location.protocol.replace(/:/g, "") + "://" + w.location.host,
         inputRe = /^(input|textarea|select|datalist|button|output)$/i,
-        started = false
+        started = false,
+        m = w.Element && w.Element.prototype
     ;
 
     w.Pjax = {
-        "supported": !!(m && h.pushState && (w.DOMParser || d.implementation.createHTMLDocument)),
+        "supported": !!(m && h.pushState && (domp || (docim && docim.createHTMLDocument))),
         "remove": remove,
         "start": start,
         "request": function (url, cfg) {
@@ -89,14 +95,13 @@
     function parseHtml(data) {
         if (domp) return (new DOMParser).parseFromString(data, "text/html");
 
-        var pd = d.implementation.createHTMLDocument("");
+        var pd = docim.createHTMLDocument("");
 
-        if (/^(\s+|)(<\!doctype|<html([^>]+>|>))/i.test(data)) {
+        if (/^(\s+|)(<(\!doctype|html)(\s+|\s[\s\S]+|)>)/i.test(data)) {
             pd.documentElement.innerHTML = data;
 
-            /* Fix bug in Android */
             if (!pd.body || !pd.head) {
-                pd = d.implementation.createHTMLDocument("");
+                pd = docim.createHTMLDocument("");
                 pd.write(data);
             }
         } else {
@@ -130,9 +135,11 @@
         frag = d.createElement("div");
         frag.innerHTML = nodes.join("");
 
-        j = frag.childNodes;
+        j = frag.children;
 
-        for (i = j.length - 1; i >= 0; i--) d.head.appendChild(j[i]);
+        for (i = j.length - 1; i >= 0; i--) {
+            if (!data(j[i], "resource")) d.head.appendChild(j[i]);
+        }
 
         frag = nodes = null;
     }
@@ -180,15 +187,6 @@
 
             if (state === 1) {
                 h.pushState(c, title, url);
-
-                /* Fix bug in Android */
-                np = true;
-                h.go(-1);
-
-                setTimeout(function () {
-                    if (url !== w.location + "") h.go(1);
-                    np = false;
-                }, 50);
             } else if (state === 2) {
                 h.replaceState(c, title, url);
             }
@@ -380,8 +378,8 @@
             data = serialize(el);
 
             if (method !== "POST") {
-                url = url.replace(/\?.*/g, "");
-                if (data) url += "?" + data;
+                url = url.replace(/\?.*/g, "") + "?";
+                if (data) url += data;
                 data = null;
             }
         } else if (w.FormData) {
@@ -400,13 +398,14 @@
 
         if (url === w.location + "" && method !== "POST") {
             if (config.updatecurrent) pjaxLoad(url, 2, method, el, data);
+            return;
         }
 
         pjaxLoad(url, 1, method, el, data);
     }
 
     function pjaxState(e) {
-        if (np || !e.state || !e.state.pjaxUrl) return;
+        if (!e.state || !e.state.pjaxUrl) return;
 
         pjaxAbort();
         pjaxParse(e.state.pjaxUrl, e.state.pjaxData, e.state.pjaxConfig, false);
