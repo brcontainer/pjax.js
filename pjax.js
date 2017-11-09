@@ -1,5 +1,5 @@
 /*
- * Pjax.js 0.5.3
+ * Pjax.js 0.5.4
  *
  * Copyright (c) 2017 Guilherme Nascimento (brcontainer@yahoo.com.br)
  *
@@ -15,7 +15,7 @@
         URL = w.URL,
         domp = !!w.DOMParser,
         evts = {},
-        docim = d.implementation,
+        di = d.implementation,
         host = w.location.protocol.replace(/:/g, "") + "://" + w.location.host,
         inputRe = /^(input|textarea|select|datalist|button|output)$/i,
         started = false,
@@ -23,7 +23,7 @@
     ;
 
     w.Pjax = {
-        "supported": !!(m && h.pushState && (domp || (docim && docim.createHTMLDocument))),
+        "supported": !!(m && h.pushState && (domp || (di && di.createHTMLDocument))),
         "remove": remove,
         "start": start,
         "request": function (url, cfg) {
@@ -80,10 +80,15 @@
         }, 1000);
     }
 
+    function selector(context, query, callback) {
+        [].slice.call(context.querySelectorAll(query)).forEach(callback);
+        callback = u;
+    }
+
     function serialize(form) {
         var data = [];
 
-        [].slice.call(form.querySelectorAll("[name]")).forEach(function (el) {
+        selector(form, "[name]", function (el) {
             if (el.name && inputRe.test(el.tagName)) {
                 data.push(encodeURIComponent(el.name) + "=" + encodeURIComponent(el.value));
             }
@@ -95,13 +100,13 @@
     function parseHtml(data) {
         if (domp) return (new DOMParser).parseFromString(data, "text/html");
 
-        var pd = docim.createHTMLDocument("");
+        var pd = di.createHTMLDocument("");
 
         if (/^\s*<(\!doctype|html)[^>]*>/i.test(data)) {
             pd.documentElement.innerHTML = data;
 
             if (!pd.body || !pd.head) {
-                pd = docim.createHTMLDocument("");
+                pd = di.createHTMLDocument("");
                 pd.write(data);
             }
         } else {
@@ -150,25 +155,21 @@
         for (var ce = evts[name], i = 0; i < ce.length; i++) ce[i](arg1, arg2, arg3);
     }
 
-    function pjaxEvent(name, callback, re) {
+    function pjaxEvent(name, callback, remove) {
         if (typeof callback !== "function") return;
 
-        if (!evts[name]) evts[name] = [];
+        var ce = callbacks[id];
 
-        var ce = evts[name];
+        if (!ce[type]) ce[type] = [];
 
-        if (!re) {
-            ce.push(callback);
+        if (!remove) {
+            ce[type].push(callback);
             return;
         }
 
-        var fr = [], i;
-
-        for (i = ce.length - 1; i >= 0; i--) {
-            if (ce[i] === callback) fr.push(i);
-        }
-
-        for (i = fr.length - 1; i >= 0; i--) ce.splice(fr[i], 1);
+        ce[type] = ce[type].filter(function (item) {
+            return item !== callback;
+        });
     }
 
     function pjaxParse(url, data, cfg, state) {
@@ -192,7 +193,7 @@
             }
         }
 
-        if (evts.dom && pjaxTrigger("dom", url, tmp) === false) return;
+        if (evts.dom) return pjaxTrigger("dom", url, tmp);
 
         if (cfg.updatehead && tmp.head) pjaxUpdateHead(tmp.head);
 
@@ -202,7 +203,7 @@
             current = tmp.body.querySelector(s[i]);
 
             if (current) {
-                [].slice.call(d.querySelectorAll(s[i])).forEach(function (el) {
+                selector(d, s[i], function (el) {
                     el.innerHTML = current.innerHTML;
                 });
             }
@@ -228,7 +229,7 @@
     }
 
     function pjaxAttributes(el) {
-        var current, c, v, cfg = JSON.parse(JSON.stringify(config)),
+        var current, value, cfg = JSON.parse(JSON.stringify(config)),
             attrs = [
                 "containers", "updatecurrent", "updatehead", "loader",
                 "scroll-left", "scroll-right", "done", "fail"
@@ -239,14 +240,14 @@
         for (var i = attrs.length - 1; i >= 0; i--) {
             current = attrs[i];
 
-            v = data(el, current);
+            value = data(el, current);
 
-            if (v) {
-                c = current.toLowerCase().replace(/-([a-z])/g, function (a, b) {
+            if (value) {
+                current = current.toLowerCase().replace(/-([a-z])/g, function (a, b) {
                     return b.toUpperCase();
                 });
 
-                cfg[c] = v;
+                cfg[current] = value;
             }
         }
 
@@ -280,9 +281,9 @@
             u.href = url;
         }
 
-        u.search += u.search ? ("&" + n) : ("?" + n);
+        u.search += (u.search ? "&" : "?") + n;
 
-        url = u.toString();
+        url = u + "";
         u = null;
 
         return url;
@@ -443,7 +444,7 @@
     }
 
     function start(opts) {
-        if (!/^http(|s):$/.test(w.location.protocol) || !w.Pjax.supported) return;
+        if (!/^https?:$/.test(w.location.protocol) || !w.Pjax.supported) return;
 
         remove();
 
