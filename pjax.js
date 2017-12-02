@@ -1,5 +1,5 @@
 /*
- * Pjax.js 0.5.4
+ * Pjax.js 0.5.5
  *
  * Copyright (c) 2017 Guilherme Nascimento (brcontainer@yahoo.com.br)
  *
@@ -9,8 +9,7 @@
 (function (d, w, u) {
     "use strict";
 
-    var
-        xhr, config, timer, loader,
+    var xhr, config, timer, loader,
         h = w.history,
         URL = w.URL,
         domp = !!w.DOMParser,
@@ -19,8 +18,7 @@
         host = w.location.protocol.replace(/:/g, "") + "://" + w.location.host,
         inputRe = /^(input|textarea|select|datalist|button|output)$/i,
         started = false,
-        m = w.Element && w.Element.prototype
-    ;
+        m = w.Element && w.Element.prototype;
 
     w.Pjax = {
         "supported": !!(m && h.pushState && (domp || (di && di.createHTMLDocument))),
@@ -46,7 +44,8 @@
         }
     }
 
-    function showLoader() {
+    function showLoader()
+    {
         if (timer) {
             clearTimeout(timer);
             timer = 0;
@@ -69,7 +68,8 @@
         }, 10);
     }
 
-    function hideLoader() {
+    function hideLoader()
+    {
         if (timer) clearTimeout(timer);
 
         loader.className += " pjax-end";
@@ -80,12 +80,14 @@
         }, 1000);
     }
 
-    function selector(context, query, callback) {
+    function selector(context, query, callback)
+    {
         [].slice.call(context.querySelectorAll(query)).forEach(callback);
         callback = u;
     }
 
-    function serialize(form) {
+    function serialize(form)
+    {
         var data = [];
 
         selector(form, "[name]", function (el) {
@@ -97,7 +99,8 @@
         return data.join("&");
     }
 
-    function parseHtml(data) {
+    function parseHtml(data)
+    {
         if (domp) return (new DOMParser).parseFromString(data, "text/html");
 
         var pd = di.createHTMLDocument("");
@@ -116,7 +119,8 @@
         return pd;
     }
 
-    function pjaxUpdateHead(head) {
+    function pjaxUpdateHead(head)
+    {
         var i, index, frag, nodes = [], j = head.children;
 
         for (i = j.length - 1; i >= 0; i--) {
@@ -149,30 +153,31 @@
         frag = nodes = null;
     }
 
-    function pjaxTrigger(name, arg1, arg2, arg3) {
+    function pjaxTrigger(name, arg1, arg2, arg3)
+    {
         if (!evts[name]) return;
 
         for (var ce = evts[name], i = 0; i < ce.length; i++) ce[i](arg1, arg2, arg3);
     }
 
-    function pjaxEvent(name, callback, remove) {
+    function pjaxEvent(name, callback, remove)
+    {
         if (typeof callback !== "function") return;
 
-        var ce = callbacks[id];
-
-        if (!ce[type]) ce[type] = [];
+        if (!evts[name]) evts[name] = [];
 
         if (!remove) {
-            ce[type].push(callback);
+            evts[name].push(callback);
             return;
         }
 
-        ce[type] = ce[type].filter(function (item) {
+        evts[name] = evts[name].filter(function (item) {
             return item !== callback;
         });
     }
 
-    function pjaxParse(url, data, cfg, state) {
+    function pjaxParse(url, data, cfg, state)
+    {
         var current, tmp = parseHtml(data);
 
         var title = tmp.title || "", s = cfg.containers,
@@ -214,7 +219,8 @@
         tmp = s = null;
     }
 
-    function data(el, name) {
+    function data(el, name)
+    {
         var d = el.getAttribute("data-pjax-" + name), resp;
 
         if (d === "true" || d === "false") {
@@ -228,7 +234,8 @@
         return resp || d;
     }
 
-    function pjaxAttributes(el) {
+    function pjaxAttributes(el)
+    {
         var current, value, cfg = JSON.parse(JSON.stringify(config)),
             attrs = [
                 "containers", "updatecurrent", "updatehead", "loader",
@@ -254,7 +261,8 @@
         return cfg;
     }
 
-    function pjaxFinish(url, cfg, state, el, callback, data) {
+    function pjaxFinish(url, cfg, state, el, callback, data)
+    {
         if (data) {
             pjaxParse(url, data, cfg, state);
         }
@@ -267,11 +275,13 @@
         if (cfg.loader) hideLoader();
     }
 
-    function pjaxAbort() {
+    function pjaxAbort()
+    {
         if (xhr) xhr.abort();
     }
 
-    function pjaxNoCache(url) {
+    function pjaxNoCache(url)
+    {
         var u, n = "_=" + (+new Date);
 
         if (!URL) {
@@ -289,7 +299,8 @@
         return url;
     }
 
-    function pjaxLoad(url, state, method, el, data) {
+    function pjaxLoad(url, state, method, el, data)
+    {
         pjaxAbort();
 
         var cfg = pjaxAttributes(el);
@@ -338,7 +349,8 @@
         xhr.send(data || "");
     }
 
-    function pjaxLink(e) {
+    function pjaxLink(e)
+    {
         if (e.button !== 0) return;
 
         var url, l, el = e.target;
@@ -359,7 +371,8 @@
         pjaxRequest("GET", url, null, el, e);
     }
 
-    function pjaxForm(e) {
+    function pjaxForm(e)
+    {
         var url, data, method, el = e.target;
 
         if (!el.matches(config.formSelector)) return;
@@ -387,7 +400,8 @@
         pjaxRequest(method, url, data, el, e);
     }
 
-    function pjaxRequest(method, url, data, el, e) {
+    function pjaxRequest(method, url, data, el, e)
+    {
         if (url.indexOf(host + "/") !== 0 && url !== host) return;
 
         e.preventDefault();
@@ -400,7 +414,8 @@
         pjaxLoad(url, 1, method, el, data);
     }
 
-    function pjaxState(e) {
+    function pjaxState(e)
+    {
         if (!e.state || !e.state.pjaxUrl) return;
 
         pjaxAbort();
@@ -408,7 +423,8 @@
         pjaxTrigger("history", e.state.pjaxUrl, e.state);
     }
 
-    function ready() {
+    function ready()
+    {
         if (started) return;
 
         started = false;
@@ -430,7 +446,8 @@
         if (config.formSelector) d.addEventListener("submit", pjaxForm);
     }
 
-    function remove() {
+    function remove()
+    {
         if (!config || !started) return;
 
         d.removeEventListener("click", pjaxLink);
@@ -443,7 +460,8 @@
         config = u;
     }
 
-    function start(opts) {
+    function start(opts)
+    {
         if (!/^https?:$/.test(w.location.protocol) || !w.Pjax.supported) return;
 
         remove();

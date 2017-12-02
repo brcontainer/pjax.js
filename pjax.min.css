@@ -1,3 +1,3 @@
-/* Pjax.js 0.5.4 | Copyright (c) 2017 Guilherme Nascimento (brcontainer@yahoo.com.br) | Released under the MIT license */
+/* Pjax.js 0.5.5 | Copyright (c) 2017 Guilherme Nascimento (brcontainer@yahoo.com.br) | Released under the MIT license */
 
 .pjax-loader{position:fixed;z-index:200000;left:0;top:0;width:100%;pointer-events:none}.pjax-loader .pjax-progress{width:0;height:4px;opacity:1;background-color:rgb(119,182,255)}.pjax-start .pjax-progress{-webkit-transition:width 1.5s ease,opacity 0.8s ease;transition:width 1.5s ease,opacity 0.8s ease}.pjax-inload .pjax-progress{width:95%}.pjax-end .pjax-progress{width:100%;opacity:.01}.pjax-hide{display:none}
