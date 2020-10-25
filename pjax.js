@@ -1,7 +1,7 @@
 /*
- * Pjax.js 0.5.5
+ * Pjax.js 0.5.6
  *
- * Copyright (c) 2019 Guilherme Nascimento (brcontainer@yahoo.com.br)
+ * Copyright (c) 2020 Guilherme Nascimento (brcontainer@yahoo.com.br)
  *
  * Released under the MIT license
  */
@@ -10,18 +10,19 @@
     "use strict";
 
     var xhr, config, timer, loader,
-        h = w.history,
+        history = w.history,
         URL = w.URL,
         domp = !!w.DOMParser,
         evts = {},
-        di = d.implementation,
+        docImplementation = d.implementation,
         host = w.location.protocol.replace(/:/g, "") + "://" + w.location.host,
         inputRe = /^(input|textarea|select|datalist|button|output)$/i,
         started = false,
-        m = w.Element && w.Element.prototype;
+        elementProto = w.Element && w.Element.prototype,
+        ArraySlice = Array.prototype.slice;
 
     w.Pjax = {
-        "supported": !!(m && h.pushState && (domp || (di && di.createHTMLDocument))),
+        "supported": !!(elementProto && history.pushState && (domp || (docImplementation && docImplementation.createHTMLDocument))),
         "remove": remove,
         "start": start,
         "request": function (url, cfg) {
@@ -103,13 +104,13 @@
     {
         if (domp) return (new DOMParser).parseFromString(data, "text/html");
 
-        var pd = di.createHTMLDocument("");
+        var pd = docImplementation.createHTMLDocument("");
 
         if (/^\s*<(\!doctype|html)[^>]*>/i.test(data)) {
             pd.documentElement.innerHTML = data;
 
             if (!pd.body || !pd.head) {
-                pd = di.createHTMLDocument("");
+                pd = docImplementation.createHTMLDocument("");
                 pd.write(data);
             }
         } else {
@@ -180,7 +181,9 @@
     {
         var current, tmp = parseHtml(data);
 
-        var title = tmp.title || "", s = cfg.containers,
+        var title = tmp.title || "",
+            containers = cfg.containers,
+            insertion = cfg.insertion,
             x = cfg.scrollLeft > 0 ? +cfg.scrollLeft : w.scrollX || w.pageXOffset,
             y = cfg.scrollTop > 0 ? +cfg.scrollTop : w.scrollY || w.pageYOffset;
 
@@ -192,9 +195,9 @@
             };
 
             if (state === 1) {
-                h.pushState(c, title, url);
+                history.pushState(c, title, url);
             } else if (state === 2) {
-                h.replaceState(c, title, url);
+                history.replaceState(c, title, url);
             }
         }
 
@@ -204,19 +207,35 @@
 
         d.title = title;
 
-        for (var i = s.length - 1; i >= 0; i--) {
-            current = tmp.body.querySelector(s[i]);
+        for (var i = containers.length - 1; i >= 0; i--) {
+            current = tmp.body.querySelector(containers[i]);
 
             if (current) {
-                selector(d, s[i], function (el) {
-                    el.innerHTML = current.innerHTML;
+                selector(d, containers[i], function (el) {
+                    if (insertion === "append" || insertion === "prepend") {
+                        var fragment = d.createDocumentFragment();
+
+                        for (var i = 0, nodes = ArraySlice.call(current.childNodes), j = nodes.length; i < j; ++i) {
+                            fragment.appendChild(nodes[i]);
+                        }
+
+                        if (insertion === "append") {
+                            el.appendChild(fragment);
+                        } else {
+                            el.insertBefore(fragment, el.firstChild);
+                        }
+
+                        fragment = null;
+                    } else {
+                        el.innerHTML = current.innerHTML;
+                    }
                 });
             }
         }
 
         w.scrollTo(x, y);
 
-        tmp = s = null;
+        tmp = containers = null;
     }
 
     function data(el, name)
@@ -238,8 +257,8 @@
     {
         var current, value, cfg = JSON.parse(JSON.stringify(config)),
             attrs = [
-                "containers", "updatecurrent", "updatehead", "loader",
-                "scroll-left", "scroll-right", "done", "fail"
+                "containers", "updatecurrent", "updatehead", "insertion",
+                "loader", "scroll-left", "scroll-top", "done", "fail"
             ];
 
         if (!el) return cfg;
@@ -263,16 +282,14 @@
 
     function pjaxFinish(url, cfg, state, el, callback, data)
     {
-        if (data) {
-            pjaxParse(url, data, cfg, state);
-        }
+        if (cfg.loader) hideLoader();
+
+        if (data) pjaxParse(url, data, cfg, state);
 
         pjaxTrigger(data ? "done" : "fail", url);
         pjaxTrigger("then", url);
 
         if (callback) new Function(callback).call(el);
-
-        if (cfg.loader) hideLoader();
     }
 
     function pjaxAbort()
@@ -359,7 +376,10 @@
             url = el.href;
         } else {
             while (el = el.parentNode) {
-                if (el.tagName === "A") l = el; break;
+                if (el.tagName === "A") {
+                    l = el;
+                    break;
+                }
             }
 
             if (!l || !l.matches(config.linkSelector)) return;
@@ -432,7 +452,7 @@
         var url = w.location + "", state = w.history.state;
 
         if (!state || !state.pjaxUrl) {
-            h.replaceState({
+            history.replaceState({
                 "pjaxUrl": url,
                 "pjaxData": d.documentElement.outerHTML,
                 "pjaxConfig": config
@@ -472,6 +492,7 @@
             "containers": [ "#pjax-container" ],
             "updatecurrent": false,
             "updatehead": true,
+            "insertion": true,
             "scrollLeft": 0,
             "scrollTop": 0,
             "nocache": false,
@@ -492,11 +513,11 @@
         }
     }
 
-    if (!m || m.matches) return;
+    if (!elementProto || elementProto.matches) return;
 
-    m.matches = m.matchesSelector || m.mozMatchesSelector || m.msMatchesSelector ||
-    m.oMatchesSelector || m.webkitMatchesSelector || function(s) {
-        var m = (this.document || this.ownerDocument).querySelectorAll(s), i = m.length;
+    elementProto.matches = elementProto.matchesSelector || elementProto.mozMatchesSelector || elementProto.msMatchesSelector ||
+    elementProto.oMatchesSelector || elementProto.webkitMatchesSelector || function(s) {
+        var m = (this.document || this.ownerDocument).querySelectorAll(s), i = elementProto.length;
 
         while (--i >= 0 && m[i] !== this);
         return i > -1;

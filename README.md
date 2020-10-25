@@ -49,7 +49,7 @@ Method | Description
 --- | ---
 `Pjax.supported` | Return `true` if support this lib, otherwise return `false`
 `Pjax.remove("remove");` | Remove PJAX requests and events
-`Pjax.on(event", function(...) {...});` | Define an event
+`Pjax.on(event, function(...) {...});` | Define an event
 
 ## Pjax Events
 
@@ -72,6 +72,7 @@ Property | type | default | description
 `containers:` | `array` | `[ "#pjax-container" ]` | Informs which elements to update on the page
 `updatecurrent:` | `bool` | `false` | If `true` request same url in used by current page is executed `history.replaceState`, otherwise nothing will be executed
 `updatehead:` | `bool` | `true` | The "pjax.js" has an intelligent update system that helps avoid the "blink" effect, because instead of updating everything it only updates what has been changed, however if you are sure that nothing will change as you page, you can set it to false, the only one that will continue to be updated will be the `<title>` tag
+`insertion` | `string` | `undefined` | Support values `append` and `prepend`, if omitted it will replace the content
 `scrollLeft:` | `number` | `0` | After loading a page via PJAX you can define where scrollLeft should scroll
 `scrollTop:` | `number` | `0` | After loading a page via PJAX you can define where scrollTop should scroll
 `loader:` | `bool` | `true` | Adds the native Pjax loader, if you want to create a loader of your own, set it to `false`
@@ -88,6 +89,7 @@ Property | equivalent | example | description
 --- | --- | --- | ---
 `data-pjax-containers` | `containers:` | `<a href="..." data-pjax-containers="[ &quot;#foo&quot;, &quot;#bar&quot;, &quot;#baz&quot; ]"` | Adjusts the containers when the request comes from a specific form or link
 `data-pjax-updatehead` | `updatehead:` | `<a href="..." data-pjax-updatehead="false"` | Allow/Disallow head tag update when the request comes from a specific form or link
+`data-pjax-insertion` | `insertion` | `<a href="..." data-pjax-insertion="append"` | Append or prepend data to the containers instead of updating
 `data-pjax-scroll-left` | `scrollLeft:` | `<form action="..." data-pjax-scroll-left="10"` | custom scroll-left to specific form or link
 `data-pjax-scroll-top` | `scrollTop:` | `<form action="..." data-pjax-scroll-top="-1"` | custom scroll-top to specific form or link
 `data-pjax-loader` | `loader:` | `<a href="..." data-pjax-loader="false"` | Allow/Disallow loader animate to specific form or link

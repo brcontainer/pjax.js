@@ -1,7 +1,7 @@
 /*
- * Pjax.js 0.5.5
+ * Pjax.js 0.5.6
  *
- * Copyright (c) 2019 Guilherme Nascimento (brcontainer@yahoo.com.br)
+ * Copyright (c) 2020 Guilherme Nascimento (brcontainer@yahoo.com.br)
  *
  * Released under the MIT license
  */
@@ -19,17 +19,14 @@
     height: 4px;
     opacity: 1;
     background-color: rgb(119, 182, 255);
-}
-.pjax-start .pjax-progress {
-    -webkit-transition: width 1.5s ease, opacity 0.8s ease;
-            transition: width 1.5s ease, opacity 0.8s ease;
+    -webkit-transition: width 1.5s ease, height .8s ease, opacity .8s ease;
+            transition: width 1.5s ease, height .8s ease, opacity .8s ease;
 }
 .pjax-inload .pjax-progress {
     width: 95%;
 }
 .pjax-end .pjax-progress {
     width: 100%;
-    opacity: 0.01;
 }
 .pjax-hide {
     display: none;
