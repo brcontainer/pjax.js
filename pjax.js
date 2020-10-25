@@ -1,15 +1,17 @@
 /*
- * Pjax.js 0.5.6
+ * Pjax.js 0.6.0
  *
  * Copyright (c) 2020 Guilherme Nascimento (brcontainer@yahoo.com.br)
  *
  * Released under the MIT license
  */
 
-(function (d, w, u) {
+(function (u) {
     "use strict";
 
     var xhr, config, timer, loader,
+        w = typeof window !== "undefined" ? window : {},
+        d = w.document || {},
         history = w.history,
         URL = w.URL,
         domp = !!w.DOMParser,
@@ -21,7 +23,7 @@
         elementProto = w.Element && w.Element.prototype,
         ArraySlice = Array.prototype.slice;
 
-    w.Pjax = {
+    var main = {
         "supported": !!(elementProto && history.pushState && (domp || (docImplementation && docImplementation.createHTMLDocument))),
         "remove": remove,
         "start": start,
@@ -81,7 +83,7 @@
         }, 1000);
     }
 
-    function selector(context, query, callback)
+    function selectorEach(context, query, callback)
     {
         [].slice.call(context.querySelectorAll(query)).forEach(callback);
         callback = u;
@@ -91,7 +93,7 @@
     {
         var data = [];
 
-        selector(form, "[name]", function (el) {
+        selectorEach(form, "[name]", function (el) {
             if (el.name && inputRe.test(el.tagName)) {
                 data.push(encodeURIComponent(el.name) + "=" + encodeURIComponent(el.value));
             }
@@ -131,7 +133,7 @@
         j = d.head.children;
 
         for (i = j.length - 1; i >= 0; i--) {
-            if (j[i].tagName === "TITLE" || data(j[i], "resource")) continue;
+            if (j[i].tagName === "TITLE" || getData(j[i], "resource")) continue;
 
             index = nodes.indexOf(j[i].outerHTML);
 
@@ -148,7 +150,7 @@
         j = frag.children;
 
         for (i = j.length - 1; i >= 0; i--) {
-            if (!data(j[i], "resource")) d.head.appendChild(j[i]);
+            if (!getData(j[i], "resource")) d.head.appendChild(j[i]);
         }
 
         frag = nodes = null;
@@ -156,9 +158,9 @@
 
     function pjaxTrigger(name, arg1, arg2, arg3)
     {
-        if (!evts[name]) return;
-
-        for (var ce = evts[name], i = 0; i < ce.length; i++) ce[i](arg1, arg2, arg3);
+        if (evts[name]) {
+            for (var ce = evts[name], i = 0; i < ce.length; i++) ce[i](arg1, arg2, arg3);
+        }
     }
 
     function pjaxEvent(name, callback, remove)
@@ -169,12 +171,11 @@
 
         if (!remove) {
             evts[name].push(callback);
-            return;
+        } else {
+            evts[name] = evts[name].filter(function (item) {
+                return item !== callback;
+            });
         }
-
-        evts[name] = evts[name].filter(function (item) {
-            return item !== callback;
-        });
     }
 
     function pjaxParse(url, data, cfg, state)
@@ -211,7 +212,7 @@
             current = tmp.body.querySelector(containers[i]);
 
             if (current) {
-                selector(d, containers[i], function (el) {
+                selectorEach(d, containers[i], function (el) {
                     if (insertion === "append" || insertion === "prepend") {
                         var fragment = d.createDocumentFragment();
 
@@ -238,19 +239,21 @@
         tmp = containers = null;
     }
 
-    function data(el, name)
+    function getData(el, name)
     {
-        var d = el.getAttribute("data-pjax-" + name), resp;
+        var data = el.getAttribute("data-pjax-" + name);
 
-        if (d === "true" || d === "false") {
-            return d === "true";
-        } else if (!isNaN(d)) {
-            return parseFloat(d);
-        } else if (/^\[[\s\S]+\]$|^\{[^:]+[:][\s\S]+\}$/.test(d)) {
-            try { resp = JSON.parse(d); } catch (e) {}
+        if (data === "true" || data === "false") {
+            return data === "true";
+        } else if (!isNaN(data)) {
+            return parseFloat(data);
+        } else if (/^\[[\s\S]+\]$|^\{[^:]+[:][\s\S]+\}$/.test(data)) {
+            try {
+                data = JSON.parse(data);
+            } catch (e) {}
         }
 
-        return resp || d;
+        return data;
     }
 
     function pjaxAttributes(el)
@@ -266,7 +269,7 @@
         for (var i = attrs.length - 1; i >= 0; i--) {
             current = attrs[i];
 
-            value = data(el, current);
+            value = getData(el, current);
 
             if (value) {
                 current = current.toLowerCase().replace(/-([a-z])/g, function (a, b) {
@@ -327,18 +330,16 @@
         if (cfg.loader) showLoader();
 
         if (evts.handler) {
-            pjaxTrigger("handler", {
+            return pjaxTrigger("handler", {
                 "url": url,
                 "state": state,
                 "method": method,
                 "element": el
             }, cfg, pjaxFinish);
-            return;
         }
 
         var headers = {
             "X-PJAX-Container": cfg.containers.join(","),
-            "X-PJAX-URL": url,
             "X-PJAX": "true"
         };
 
@@ -356,8 +357,12 @@
 
             var status = this.status;
 
-            if (status >= 200 && status < 300 || status === 304) {
-                pjaxFinish(url, cfg, state, el, cfg.done, this.responseText);
+            if (status >= 200 && status < 300) {
+                var containers = xhr.getResponseHeader("X-PJAX-Container");
+
+                if (containers) cfg.containers = containers.split(",");
+
+                pjaxFinish(xhr.getResponseHeader("X-PJAX-URL") || url, cfg, state, el, cfg.done, this.responseText);
             } else {
                 pjaxFinish(url, cfg, status, el, cfg.fail);
             }
@@ -436,11 +441,11 @@
 
     function pjaxState(e)
     {
-        if (!e.state || !e.state.pjaxUrl) return;
-
-        pjaxAbort();
-        pjaxParse(e.state.pjaxUrl, e.state.pjaxData, e.state.pjaxConfig, false);
-        pjaxTrigger("history", e.state.pjaxUrl, e.state);
+        if (e.state && e.state.pjaxUrl) {
+            pjaxAbort();
+            pjaxParse(e.state.pjaxUrl, e.state.pjaxData, e.state.pjaxConfig, false);
+            pjaxTrigger("history", e.state.pjaxUrl, e.state);
+        }
     }
 
     function ready()
@@ -468,21 +473,21 @@
 
     function remove()
     {
-        if (!config || !started) return;
+        if (config && started) {
+            d.removeEventListener("click", pjaxLink);
+            d.removeEventListener("submit", pjaxForm);
 
-        d.removeEventListener("click", pjaxLink);
-        d.removeEventListener("submit", pjaxForm);
+            w.removeEventListener("unload", pjaxAbort);
+            w.removeEventListener("popstate", pjaxState);
 
-        w.removeEventListener("unload", pjaxAbort);
-        w.removeEventListener("popstate", pjaxState);
-
-        started = false;
-        config = u;
+            started = false;
+            config = u;
+        }
     }
 
     function start(opts)
     {
-        if (!/^https?:$/.test(w.location.protocol) || !w.Pjax.supported) return;
+        if (!/^https?:$/.test(w.location.protocol) || !main.supported) return;
 
         remove();
 
@@ -513,13 +518,21 @@
         }
     }
 
-    if (!elementProto || elementProto.matches) return;
+    if (elementProto && !elementProto.matches) {
+        elementProto.matches = elementProto.matchesSelector || elementProto.mozMatchesSelector || elementProto.msMatchesSelector ||
+        elementProto.oMatchesSelector || elementProto.webkitMatchesSelector || function(s) {
+            var m = (this.document || this.ownerDocument).querySelectorAll(s), i = elementProto.length;
 
-    elementProto.matches = elementProto.matchesSelector || elementProto.mozMatchesSelector || elementProto.msMatchesSelector ||
-    elementProto.oMatchesSelector || elementProto.webkitMatchesSelector || function(s) {
-        var m = (this.document || this.ownerDocument).querySelectorAll(s), i = elementProto.length;
+            while (--i >= 0 && m[i] !== this);
+            return i > -1;
+        };
+    }
 
-        while (--i >= 0 && m[i] !== this);
-        return i > -1;
-    };
-})(document, window);
+    w.Pjax = main;
+
+    // CommonJS
+    if (typeof exports !== "undefined") exports.Pjax = main;
+
+    // RequireJS
+    if (typeof define !== "undefined") define(function () { return main; });
+})();

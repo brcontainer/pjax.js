@@ -159,7 +159,6 @@ It is possible to detect if the request came from the PJAX using the request hea
 Header | Description
 --- | ---
 `X-PJAX` | Indicates that the page was requested via PJAX
-`X-PJAX-URL` | Inform the entire url of the requested page
 `X-PJAX-Container` | Informs the container selectors used
 
 Example using PHP:
@@ -167,6 +166,30 @@ Example using PHP:
 ```php
 if (isset($_SERVER['HTTP_X_PJAX'])) {
     echo 'You using pjax';
+}
+```
+
+## Redirect using PJAX
+
+You can use HTTP response header `X-PJAX-URL` in back-end for force Pjax.js redirects, example:
+
+```php
+header('X-PJAX-URL: /new-page.html');
+
+...
+```
+
+## Change or add container using PJAX
+
+You can use HTTP response header `X-PJAX-URL` in back-end for force Pjax.js redirects, example:
+
+```php
+if (isset($_SERVER['HTTP_X_PJAX'])) {
+    header('X-PJAX-Container: #foo,#bar');
+
+    echo '<div id="foo"> ... </div>';
+
+    echo '<div id="bar"> ... </div>';
 }
 ```
 
