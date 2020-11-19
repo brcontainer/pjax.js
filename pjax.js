@@ -1,5 +1,5 @@
 /*
- * Pjax.js 0.6.0
+ * Pjax.js 0.6.1
  *
  * Copyright (c) 2020 Guilherme Nascimento (brcontainer@yahoo.com.br)
  *
@@ -17,18 +17,21 @@
         domp = !!w.DOMParser,
         evts = {},
         docImplementation = d.implementation,
-        host = w.location.protocol.replace(/:/g, "") + "://" + w.location.host,
+        location = w.location,
+        host = location ? (location.protocol.replace(/:/g, "") + "://" + w.location.host) : '',
         inputRe = /^(input|textarea|select|datalist|button|output)$/i,
         started = false,
         elementProto = w.Element && w.Element.prototype,
-        ArraySlice = Array.prototype.slice;
+        ArraySlice = Array.prototype.slice,
+        PUSH = 1,
+        REPLACE = 2;
 
     var main = {
         "supported": !!(elementProto && history.pushState && (domp || (docImplementation && docImplementation.createHTMLDocument))),
         "remove": remove,
         "start": start,
         "request": function (url, cfg) {
-            pjaxLoad(url, cfg.replace ? 2 : 1, cfg.method, null, cfg.data);
+            pjaxLoad(url, cfg.replace ? REPLACE : PUSH, cfg.method, null, cfg.data);
         },
         "on": function (name, callback) {
             pjaxEvent(name, callback);
@@ -195,9 +198,9 @@
                 "pjaxConfig": cfg
             };
 
-            if (state === 1) {
+            if (state === PUSH) {
                 history.pushState(c, title, url);
-            } else if (state === 2) {
+            } else if (state === REPLACE) {
                 history.replaceState(c, title, url);
             }
         }
@@ -432,11 +435,11 @@
         e.preventDefault();
 
         if (url === w.location + "" && method !== "POST") {
-            if (config.updatecurrent) pjaxLoad(url, 2, method, el, data);
+            if (config.updatecurrent) pjaxLoad(url, REPLACE, method, el, data);
             return;
         }
 
-        pjaxLoad(url, 1, method, el, data);
+        pjaxLoad(url, PUSH, method, el, data);
     }
 
     function pjaxState(e)
@@ -520,7 +523,7 @@
 
     if (elementProto && !elementProto.matches) {
         elementProto.matches = elementProto.matchesSelector || elementProto.mozMatchesSelector || elementProto.msMatchesSelector ||
-        elementProto.oMatchesSelector || elementProto.webkitMatchesSelector || function(s) {
+        elementProto.oMatchesSelector || elementProto.webkitMatchesSelector || function (s) {
             var m = (this.document || this.ownerDocument).querySelectorAll(s), i = elementProto.length;
 
             while (--i >= 0 && m[i] !== this);
@@ -531,7 +534,7 @@
     w.Pjax = main;
 
     // CommonJS
-    if (typeof exports !== "undefined") exports.Pjax = main;
+    if (typeof module !== "undefined" && module.exports) module.exports = main;
 
     // RequireJS
     if (typeof define !== "undefined") define(function () { return main; });

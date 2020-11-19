@@ -43,13 +43,13 @@ Or use CDN:
 Import:
 
 ```javascript
-import * as Pjax from 'pjax.js';
+const Pjax = require('pjax.js');
 ```
 
-ESM Import:
+ESM/ES6 import:
 
 ```javascript
-import { Pjax } from 'pjax.js';
+import Pjax from 'pjax.js';
 ```
 
 ## Support
