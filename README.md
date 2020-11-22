@@ -44,12 +44,24 @@ Import:
 
 ```javascript
 const Pjax = require('pjax.js');
+
+...
 ```
 
 ESM/ES6 import:
 
 ```javascript
 import Pjax from 'pjax.js';
+
+...
+```
+
+RequireJS:
+
+```javascript
+requirejs(['folder/foo/bar/pjax'], function (Pjax) {
+    ...
+});
 ```
 
 ## Support

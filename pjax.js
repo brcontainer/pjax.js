@@ -1,5 +1,5 @@
 /*
- * Pjax.js 0.6.1
+ * Pjax.js 0.6.2
  *
  * Copyright (c) 2020 Guilherme Nascimento (brcontainer@yahoo.com.br)
  *
@@ -524,7 +524,7 @@
     if (elementProto && !elementProto.matches) {
         elementProto.matches = elementProto.matchesSelector || elementProto.mozMatchesSelector || elementProto.msMatchesSelector ||
         elementProto.oMatchesSelector || elementProto.webkitMatchesSelector || function (s) {
-            var m = (this.document || this.ownerDocument).querySelectorAll(s), i = elementProto.length;
+            var m = (this.document || this.ownerDocument).querySelectorAll(s), i = m.length;
 
             while (--i >= 0 && m[i] !== this);
             return i > -1;
