@@ -96,19 +96,19 @@ Method | Description
 --- | ---
 `Pjax.supported` | Return `true` if support this lib, otherwise return `false`
 `Pjax.remove("remove");` | Remove PJAX requests and events
-`Pjax.on(event, function(...) {...});` | Define an event
+`Pjax.on(event, function (...) {...});` | Define an event
 
 ## Pjax Events
 
 Example | Description
 --- | ---
-`Pjax.on("initiate", function(url, config) {...});` | Trigged when clicked in a link or submit a form
-`Pjax.on("done", function(url) {...});` | Trigged when page loaded using `$.jax`
-`Pjax.on("fail", function(url, status, error) {...});` | Trigged when page failed to load, `status` return HTTP code and `error` return message error
-`Pjax.on("then", function(url) {...});` | Executes every time a request is completed, even if it fails or success.
-`Pjax.on("history", function(url, stateData) {...});` | Executes every use back or forward
-`Pjax.on("handler", function(data, config, callbackDone, callbackFail) {...});` | Create your owner response to Pjax.js request
-`Pjax.on("dom", function(url, newdocument) {...});` | Allows you to manipulate an element change manually, for example you can create transitions or change newdocument
+`Pjax.on("initiate", function (url, config) {...});` | Trigged when clicked in a link or submit a form
+`Pjax.on("done", function (url) {...});` | Trigged when page loaded using `$.jax`
+`Pjax.on("fail", function (url, status, error) {...});` | Trigged when page failed to load, `status` return HTTP code and `error` return message error
+`Pjax.on("then", function (url) {...});` | Executes every time a request is completed, even if it fails or success.
+`Pjax.on("history", function (url, stateData) {...});` | Executes every use back or forward
+`Pjax.on("handler", function (data, config, callbackDone, callbackFail) {...});` | Create your owner response to Pjax.js request
+`Pjax.on("dom", function (url, newdocument) {...});` | Allows you to manipulate an element change manually, for example you can create transitions or change newdocument
 
 > Tip: You can use `Pjax.on("dom", ...);` for remove events in DOM
 
@@ -125,8 +125,9 @@ Property | type | default | description
 `loader:` | `bool` | `true` | Adds the native Pjax loader, if you want to create a loader of your own, set it to `false`
 `nocache:` | `bool` | `false` | Prevent cache
 `proxy:` | `string` | `""` | Set Web Proxy
-`formSelector:` | `string` | `form:not([data-pjax-ignore]):not([action^='javascript:'])"` | Set form selector, set empty for prevent forms uses Pjax
-`linkSelector:` | `string` | `a:not([data-pjax-ignore]):not([href^='#']):not([href^='javascript:'])"` | Set form selector, set empty for prevent links uses Pjax
+`formSelector:` | `string` | `form:not([data-pjax-ignore]):not([action^='javascript:'])` | Set form selector, set empty for prevent forms uses Pjax
+`linkSelector:` | `string` | `a:not([data-pjax-ignore]):not([href^='#']):not([href^='javascript:'])` | Set form selector, set empty for prevent links uses Pjax
+`headers:` | `object` | Adds custom headers, eg.: `{ "foo": "bar", "test": "baz" }`
 
 ## PJAX with HTML5 data attribute
 
@@ -288,7 +289,7 @@ Pjax.start({
     updatehead: false //Prevent remove itens in head
 });
 
-Pjax.on("handler", function(hdata, config, done, fail) {
+Pjax.on("handler", function (hdata, config, done, fail) {
     setTimeout(function () {
         done(hdata.url, '<div id="pjax-container">Foo: ' + new Date() + '</div>', config, hdata.state);
     }, 1000);

@@ -1144,7 +1144,7 @@ body .markdown-body
 <td>Remove PJAX requests and events</td>
 </tr>
 <tr>
-<td><code>Pjax.on(event, function(...) {...});</code></td>
+<td><code>Pjax.on(event, function (...) {...});</code></td>
 <td>Define an event</td>
 </tr>
 </tbody>
@@ -1159,31 +1159,31 @@ body .markdown-body
 </thead>
 <tbody>
 <tr>
-<td><code>Pjax.on("initiate", function(url, config) {...});</code></td>
+<td><code>Pjax.on("initiate", function (url, config) {...});</code></td>
 <td>Trigged when clicked in a link or submit a form</td>
 </tr>
 <tr>
-<td><code>Pjax.on("done", function(url) {...});</code></td>
+<td><code>Pjax.on("done", function (url) {...});</code></td>
 <td>Trigged when page loaded using <code>$.jax</code></td>
 </tr>
 <tr>
-<td><code>Pjax.on("fail", function(url, status, error) {...});</code></td>
+<td><code>Pjax.on("fail", function (url, status, error) {...});</code></td>
 <td>Trigged when page failed to load, <code>status</code> return HTTP code and <code>error</code> return message error</td>
 </tr>
 <tr>
-<td><code>Pjax.on("then", function(url) {...});</code></td>
+<td><code>Pjax.on("then", function (url) {...});</code></td>
 <td>Executes every time a request is completed, even if it fails or success.</td>
 </tr>
 <tr>
-<td><code>Pjax.on("history", function(url, stateData) {...});</code></td>
+<td><code>Pjax.on("history", function (url, stateData) {...});</code></td>
 <td>Executes every use back or forward</td>
 </tr>
 <tr>
-<td><code>Pjax.on("handler", function(data, config, callbackDone, callbackFail) {...});</code></td>
+<td><code>Pjax.on("handler", function (data, config, callbackDone, callbackFail) {...});</code></td>
 <td>Create your owner response to Pjax.js request</td>
 </tr>
 <tr>
-<td><code>Pjax.on("dom", function(url, newdocument) {...});</code></td>
+<td><code>Pjax.on("dom", function (url, newdocument) {...});</code></td>
 <td>Allows you to manipulate an element change manually, for example you can create transitions or change newdocument</td>
 </tr>
 </tbody>
@@ -1259,14 +1259,20 @@ body .markdown-body
 <tr>
 <td><code>formSelector:</code></td>
 <td><code>string</code></td>
-<td><code>form:not([data-pjax-ignore]):not([action^='javascript:'])"</code></td>
+<td><code>form:not([data-pjax-ignore]):not([action^='javascript:'])</code></td>
 <td>Set form selector, set empty for prevent forms uses Pjax</td>
 </tr>
 <tr>
 <td><code>linkSelector:</code></td>
 <td><code>string</code></td>
-<td><code>a:not([data-pjax-ignore]):not([href^='#']):not([href^='javascript:'])"</code></td>
+<td><code>a:not([data-pjax-ignore]):not([href^='#']):not([href^='javascript:'])</code></td>
 <td>Set form selector, set empty for prevent links uses Pjax</td>
+</tr>
+<tr>
+<td><code>headers:</code></td>
+<td><code>object</code></td>
+<td>Adds custom headers, eg.: <code>{ "foo": "bar", "test": "baz" }</code></td>
+<td></td>
 </tr>
 </tbody>
 </table>
@@ -1470,7 +1476,7 @@ body .markdown-body
     <span class="nx">updatehead</span><span class="o">:</span> <span class="kc">false</span> <span class="c1">//Prevent remove itens in head</span>
 <span class="p">});</span>
 
-<span class="nx">Pjax</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">&quot;handler&quot;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">hdata</span><span class="p">,</span> <span class="nx">config</span><span class="p">,</span> <span class="nx">done</span><span class="p">,</span> <span class="nx">fail</span><span class="p">)</span> <span class="p">{</span>
+<span class="nx">Pjax</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">&quot;handler&quot;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">hdata</span><span class="p">,</span> <span class="nx">config</span><span class="p">,</span> <span class="nx">done</span><span class="p">,</span> <span class="nx">fail</span><span class="p">)</span> <span class="p">{</span>
     <span class="nx">setTimeout</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
         <span class="nx">done</span><span class="p">(</span><span class="nx">hdata</span><span class="p">.</span><span class="nx">url</span><span class="p">,</span> <span class="s1">&#39;&lt;div id=&quot;pjax-container&quot;&gt;Foo: &#39;</span> <span class="o">+</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">()</span> <span class="o">+</span> <span class="s1">&#39;&lt;/div&gt;&#39;</span><span class="p">,</span> <span class="nx">config</span><span class="p">,</span> <span class="nx">hdata</span><span class="p">.</span><span class="nx">state</span><span class="p">);</span>
     <span class="p">},</span> <span class="mi">1000</span><span class="p">);</span>

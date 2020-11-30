@@ -1,5 +1,5 @@
 /*
- * Pjax.js 0.6.2
+ * Pjax.js 0.6.3
  *
  * Copyright (c) 2020 Guilherme Nascimento (brcontainer@yahoo.com.br)
  *
@@ -24,10 +24,15 @@
         elementProto = w.Element && w.Element.prototype,
         ArraySlice = Array.prototype.slice,
         PUSH = 1,
-        REPLACE = 2;
+        REPLACE = 2,
+        supported = (
+            elementProto && history.pushState && (
+                domp || (docImplementation && docImplementation.createHTMLDocument)
+            )
+        );
 
     var main = {
-        "supported": !!(elementProto && history.pushState && (domp || (docImplementation && docImplementation.createHTMLDocument))),
+        "supported": supported,
         "remove": remove,
         "start": start,
         "request": function (url, cfg) {
@@ -162,22 +167,22 @@
     function pjaxTrigger(name, arg1, arg2, arg3)
     {
         if (evts[name]) {
-            for (var ce = evts[name], i = 0; i < ce.length; i++) ce[i](arg1, arg2, arg3);
+            for (var ce = evts[name], i = 0, j = ce.length; i < j; i++) ce[i](arg1, arg2, arg3);
         }
     }
 
     function pjaxEvent(name, callback, remove)
     {
-        if (typeof callback !== "function") return;
+        if (typeof callback === "function") {
+            if (!evts[name]) evts[name] = [];
 
-        if (!evts[name]) evts[name] = [];
-
-        if (!remove) {
-            evts[name].push(callback);
-        } else {
-            evts[name] = evts[name].filter(function (item) {
-                return item !== callback;
-            });
+            if (remove) {
+                evts[name] = evts[name].filter(function (item) {
+                    return item !== callback;
+                });
+            } else {
+                evts[name].push(callback);
+            }
         }
     }
 
@@ -332,6 +337,11 @@
 
         if (cfg.loader) showLoader();
 
+        var headers = config.headers;
+
+        headers["X-PJAX-Container"] = cfg.containers.join(",");
+        headers["X-PJAX"] = "true";
+
         if (evts.handler) {
             return pjaxTrigger("handler", {
                 "url": url,
@@ -341,17 +351,12 @@
             }, cfg, pjaxFinish);
         }
 
-        var headers = {
-            "X-PJAX-Container": cfg.containers.join(","),
-            "X-PJAX": "true"
-        };
+        if (config.proxy) url = config.proxy + encodeURIComponent(url);
 
-        var curl = config.proxy || url;
-
-        if (config.nocache) curl = pjaxNoCache(url);
+        if (config.nocache) url = pjaxNoCache(url);
 
         xhr = new XMLHttpRequest;
-        xhr.open(method, curl, true);
+        xhr.open(method, url, true);
 
         for (var k in headers) xhr.setRequestHeader(k, headers[k]);
 
@@ -376,27 +381,27 @@
 
     function pjaxLink(e)
     {
-        if (e.button !== 0) return;
+        if (e.button === 0) {
+            var url, lastEl, el = e.target;
 
-        var url, l, el = e.target;
-
-        if (el.matches(config.linkSelector)) {
-            url = el.href;
-        } else {
-            while (el = el.parentNode) {
-                if (el.tagName === "A") {
-                    l = el;
-                    break;
+            if (el.matches(config.linkSelector)) {
+                url = el.href;
+            } else {
+                while (el = el.parentNode) {
+                    if (el.tagName === "A") {
+                        lastEl = el;
+                        break;
+                    }
                 }
+
+                if (!lastEl || !lastEl.matches(config.linkSelector)) return;
+
+                el = lastEl;
+                url = el.href;
             }
 
-            if (!l || !l.matches(config.linkSelector)) return;
-
-            el = l;
-            url = el.href;
+            pjaxRequest("GET", url, null, el, e);
         }
-
-        pjaxRequest("GET", url, null, el, e);
     }
 
     function pjaxForm(e)
@@ -430,16 +435,19 @@
 
     function pjaxRequest(method, url, data, el, e)
     {
-        if (url.indexOf(host + "/") !== 0 && url !== host) return;
+        if (url.indexOf(host + "/") === 0 || url === host) {
+            e.preventDefault();
 
-        e.preventDefault();
+            if (url === host || url.indexOf(host + "/") === 0) {
+                e.preventDefault();
 
-        if (url === w.location + "" && method !== "POST") {
-            if (config.updatecurrent) pjaxLoad(url, REPLACE, method, el, data);
-            return;
+                if (method === "POST" || url !== w.location + "") {
+                    pjaxLoad(url, PUSH, method, el, data);
+                } else if (updatecurrent) {
+                    pjaxLoad(url, REPLACE, method, el, data);
+                }
+            }
         }
-
-        pjaxLoad(url, PUSH, method, el, data);
     }
 
     function pjaxState(e)
@@ -453,25 +461,25 @@
 
     function ready()
     {
-        if (started) return;
+        if (!started) {
+            started = true;
 
-        started = false;
+            var url = w.location + "", state = w.history.state;
 
-        var url = w.location + "", state = w.history.state;
+            if (!state || !state.pjaxUrl) {
+                history.replaceState({
+                    "pjaxUrl": url,
+                    "pjaxData": d.documentElement.outerHTML,
+                    "pjaxConfig": config
+                }, d.title, url);
+            }
 
-        if (!state || !state.pjaxUrl) {
-            history.replaceState({
-                "pjaxUrl": url,
-                "pjaxData": d.documentElement.outerHTML,
-                "pjaxConfig": config
-            }, d.title, url);
+            w.addEventListener("unload", pjaxAbort);
+            w.addEventListener("popstate", pjaxState);
+
+            if (config.linkSelector) d.addEventListener("click", pjaxLink);
+            if (config.formSelector) d.addEventListener("submit", pjaxForm);
         }
-
-        w.addEventListener("unload", pjaxAbort);
-        w.addEventListener("popstate", pjaxState);
-
-        if (config.linkSelector) d.addEventListener("click", pjaxLink);
-        if (config.formSelector) d.addEventListener("submit", pjaxForm);
     }
 
     function remove()
@@ -490,34 +498,35 @@
 
     function start(opts)
     {
-        if (!/^https?:$/.test(w.location.protocol) || !main.supported) return;
+        if (supported && /^https?:$/.test(w.location.protocol)) {
+            remove();
 
-        remove();
+            config = {
+                "linkSelector": "a:not([data-pjax-ignore]):not([href^='#']):not([href^='javascript:'])",
+                "formSelector": "form:not([data-pjax-ignore]):not([action^='javascript:'])",
+                "containers": [ "#pjax-container" ],
+                "updatecurrent": false,
+                "updatehead": true,
+                "insertion": true,
+                "scrollLeft": 0,
+                "scrollTop": 0,
+                "nocache": false,
+                "loader": true,
+                "proxy": "",
+                "headers": {}
+            };
 
-        config = {
-            "linkSelector": "a:not([data-pjax-ignore]):not([href^='#']):not([href^='javascript:'])",
-            "formSelector": "form:not([data-pjax-ignore]):not([action^='javascript:'])",
-            "containers": [ "#pjax-container" ],
-            "updatecurrent": false,
-            "updatehead": true,
-            "insertion": true,
-            "scrollLeft": 0,
-            "scrollTop": 0,
-            "nocache": false,
-            "loader": true,
-            "proxy": ""
-        };
+            for (var k in config) {
+                if (opts && k in opts) config[k] = opts[k];
+            }
 
-        for (var k in config) {
-            if (opts && k in opts) config[k] = opts[k];
-        }
+            opts = null;
 
-        opts = null;
-
-        if (/^(interactive|complete)$/.test(d.readyState)) {
-            ready();
-        } else {
-            d.addEventListener("DOMContentLoaded", ready);
+            if (/^(interactive|complete)$/.test(d.readyState)) {
+                ready();
+            } else {
+                d.addEventListener("DOMContentLoaded", ready);
+            }
         }
     }
 
