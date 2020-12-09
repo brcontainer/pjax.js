@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=0">
     <link rel="shortcut icon" href="https://github.githubassets.com/favicons/favicon.png">
     <link rel="stylesheet" type="text/css" href="assets/pjax.min.css" data-pjax-resource="true">
-    <script src="assets/pjax.min.js" data-pjax-resource="true"></script>
+    <script src="assets/pjax.js" data-pjax-resource="true"></script>
     <script data-pjax-resource="true">
     Pjax.start();
     </script>
@@ -30,9 +30,13 @@
 
     <ul>
         <li><a href="./"><strong>Home</strong></a></li>
+        <li><a target="_blank" href="./">Home (target="_blank")</a></li>
         <li><a href="example-1.html"><strong>Example 1</strong> xyz</a></li>
         <li><a href="example-2.html">Example 2</a></li>
         <li><a href="example-3.html">Example 3</a></li>
+        <li><a href="example-3.html" target="foobar">Example 3 (target="foobar")</a></li>
+        <li><a href="https://github.com/brcontainer/pjax.js/">External (without target)</a></li>
+        <li><a target="_blank" href="https://github.com/brcontainer/pjax.js/issues">External (target="_blank")</a></li>
     </ul>
     <div id="pjax-container">
         <h1>Home page</h1>

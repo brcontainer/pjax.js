@@ -1,5 +1,5 @@
 /*
- * Pjax.js 0.6.3
+ * Pjax.js 0.6.4
  *
  * Copyright (c) 2020 Guilherme Nascimento (brcontainer@yahoo.com.br)
  *
@@ -14,7 +14,8 @@
         d = w.document || {},
         history = w.history,
         URL = w.URL,
-        domp = !!w.DOMParser,
+        domparser = !!w.DOMParser,
+        formdata = !w.FormData,
         evts = {},
         docImplementation = d.implementation,
         location = w.location,
@@ -27,7 +28,7 @@
         REPLACE = 2,
         supported = (
             elementProto && history.pushState && (
-                domp || (docImplementation && docImplementation.createHTMLDocument)
+                domparser || (docImplementation && docImplementation.createHTMLDocument)
             )
         );
 
@@ -46,12 +47,12 @@
         }
     };
 
-    if (domp) {
+    if (domparser) {
         try {
             var test = parseHtml('<html><head><title>1</title></head><body>1</body></html>');
-            domp = !!(test.head && test.title && test.body);
+            domparser = !!(test.head && test.title && test.body);
         } catch (ee) {
-            domp = false;
+            domparser = false;
         }
     }
 
@@ -112,7 +113,7 @@
 
     function parseHtml(data)
     {
-        if (domp) return (new DOMParser).parseFromString(data, "text/html");
+        if (domparser) return (new DOMParser).parseFromString(data, "text/html");
 
         var pd = docImplementation.createHTMLDocument("");
 
@@ -327,11 +328,9 @@
         return url;
     }
 
-    function pjaxLoad(url, state, method, el, data)
+    function pjaxLoad(url, state, method, el, data, cfg)
     {
         pjaxAbort();
-
-        var cfg = pjaxAttributes(el);
 
         pjaxTrigger("initiate", url, cfg);
 
@@ -412,7 +411,7 @@
 
         method = String(el.method).toUpperCase();
 
-        if (method === "POST" && !w.FormData) return;
+        if (method === "POST" && !formdata) return;
 
         url = el.action;
 
@@ -424,7 +423,7 @@
                 if (data) url += data;
                 data = null;
             }
-        } else if (w.FormData) {
+        } else if (formdata) {
             data = new FormData(el);
         } else {
             return;
@@ -435,16 +434,18 @@
 
     function pjaxRequest(method, url, data, el, e)
     {
-        if (url.indexOf(host + "/") === 0 || url === host) {
-            e.preventDefault();
+        if (url === host || url.indexOf(host + "/") === 0) {
+            var target = String(el.target).toLowerCase();
 
-            if (url === host || url.indexOf(host + "/") === 0) {
+            if (!target || target == "_self" || target === w.name || (target === "_parent" && w === w.parent)) {
                 e.preventDefault();
 
+                var cfg = pjaxAttributes(el);
+
                 if (method === "POST" || url !== w.location + "") {
-                    pjaxLoad(url, PUSH, method, el, data);
-                } else if (updatecurrent) {
-                    pjaxLoad(url, REPLACE, method, el, data);
+                    pjaxLoad(url, PUSH, method, el, data, cfg);
+                } else if (cfg.updatecurrent) {
+                    pjaxLoad(url, REPLACE, method, el, data, cfg);
                 }
             }
         }
@@ -532,10 +533,10 @@
 
     if (elementProto && !elementProto.matches) {
         elementProto.matches = elementProto.matchesSelector || elementProto.mozMatchesSelector || elementProto.msMatchesSelector ||
-        elementProto.oMatchesSelector || elementProto.webkitMatchesSelector || function (s) {
-            var m = (this.document || this.ownerDocument).querySelectorAll(s), i = m.length;
+        elementProto.oMatchesSelector || elementProto.webkitMatchesSelector || function (query) {
+            var els = (this.document || this.ownerDocument).querySelectorAll(query), i = els.length;
 
-            while (--i >= 0 && m[i] !== this);
+            while (--i >= 0 && els[i] !== this);
             return i > -1;
         };
     }
