@@ -1,8 +1,14 @@
-#!/usr/bin/python
-from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
+try:
+    from http.server import BaseHTTPRequestHandler, HTTPServer
+
+except:
+    from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
+
+
 from time import sleep
 import os, sys
 import inspect
+
 
 PORT_NUMBER = int(sys.argv[1])
 
@@ -11,8 +17,9 @@ dirpath = os.path.dirname(os.path.realpath(sys.argv[0]))
 assets = dirpath + '/../'
 www = dirpath + '/www/'
 
-class ServerHandler(BaseHTTPRequestHandler):
 
+class ServerHandler(BaseHTTPRequestHandler):
+    legacy = sys.version_info < (3, 0)
     method = "GET"
 
     def do_GET(self):
@@ -31,64 +38,82 @@ class ServerHandler(BaseHTTPRequestHandler):
         self.doRequestHttp()
 
     def getInput(self):
-        contentLength = self.headers.getheader('content-length')
+        contentLength = self.headers['content-length'] if 'content-length' in self.headers else '0'
 
         if contentLength:
             contentLength = int(contentLength)
             return self.rfile.read(contentLength)
 
-        return ''
+        return '' if self.legacy else bytes('')
+
+    def displayInput(self, contents):
+        data = self.getInput()
+
+        param = '{FORMDATA}'
+        pattern = '<'
+        replacement = '&lt;'
+        alternative = ''
+
+        if not self.legacy:
+            param = bytes(param, 'utf-8')
+            pattern = bytes(pattern, 'utf-8')
+            replacement = bytes(replacement, 'utf-8')
+            alternative = bytes(alternative, 'utf-8')
+
+        if data:
+            return contents.replace(param, data.replace(pattern, replacement))
+        else:
+            return alternative
 
     def doRequestHttp(self):
         if self.path == '/':
             self.path = '/index.html'
 
+        if self.path.endswith('.html'):
+            contentType = 'text/html; charset=UTF-8'
+        elif self.path.endswith('.txt'):
+            contentType = 'text/plain; charset=UTF-8'
+        elif self.path.endswith('.json'):
+            contentType = 'application/json; charset=UTF-8'
+        elif self.path.endswith('.js'):
+            contentType = 'application/javascript'
+        elif self.path.endswith('.css'):
+            contentType = 'text/css'
+        else:
+            contentType = 'application/octet-stream'
+
+        if self.path.startswith('/assets/'):
+            current = assets + self.path[8:]
+        else:
+            current = www + self.path
+
+        if 'x-pjax' in self.headers and self.headers['x-pjax'] == 'true':
+            sleep(2) # Simulate slow page
+
         try:
-            if self.path.endswith('.html'):
-                type = 'text/html; charset=UTF-8'
-            elif self.path.endswith('.txt'):
-                type = 'text/plain; charset=UTF-8'
-            elif self.path.endswith('.json'):
-                type = 'application/json; charset=UTF-8'
-            elif self.path.endswith('.js'):
-                type = 'application/javascript'
-            elif self.path.endswith('.css'):
-                type = 'text/css'
-            else:
-                type = 'application/octet-stream'
+            with open(current, 'rb') as f:
+                self.send_response(200)
+                self.send_header('content-type', contentType)
+                self.end_headers()
 
-            if self.path.startswith('/assets/'):
-                current = assets + self.path[8:]
-            else:
-                current = www + self.path
+                fileContents = f.read()
 
-            if self.headers.getheader('x-pjax') == 'true':
-                sleep(2) # Simulate slow page
+                if self.method == 'POST' and fileContents:
+                    fileContents = self.displayInput(fileContents)
 
-            f = open(current)
+                self.wfile.write(fileContents)
 
-            self.send_response(200)
-            self.send_header('content-type', type)
-            self.end_headers()
-
-            filecontents = f.read()
-
-            if self.method == 'POST':
-                inputData = self.getInput().replace('<', '&lt;')
-                filecontents = filecontents.replace('{FORMDATA}', inputData)
-
-            self.wfile.write(filecontents)
-
-            f.close()
+                f.close()
 
         except IOError:
             self.send_error(404, 'File not found: %s' % current)
 
+
 try:
     server = HTTPServer(('', PORT_NUMBER), ServerHandler)
-    print 'Server is listening on port', PORT_NUMBER
+    print('Server is listening on port ' + str(PORT_NUMBER))
     server.serve_forever()
 
 except KeyboardInterrupt:
-    print '^C received, shutting down the web server'
+    print('^C received, shutting down the web server')
     server.socket.close()

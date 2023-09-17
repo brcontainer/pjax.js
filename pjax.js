@@ -1,7 +1,7 @@
 /*
- * Pjax.js 0.6.4
+ * Pjax.js 0.6.5
  *
- * Copyright (c) 2020 Guilherme Nascimento (brcontainer@yahoo.com.br)
+ * Copyright (c) 2023 Guilherme Nascimento (brcontainer@yahoo.com.br)
  *
  * Released under the MIT license
  */
@@ -15,41 +15,52 @@
         history = w.history,
         URL = w.URL,
         domparser = !!w.DOMParser,
-        formdata = !w.FormData,
+        formdata = !!w.FormData,
         evts = {},
         docImplementation = d.implementation,
         location = w.location,
-        host = location ? (location.protocol.replace(/:/g, "") + "://" + w.location.host) : '',
-        inputRe = /^(input|textarea|select|datalist|button|output)$/i,
+        host = location ? (location.protocol.replace(/:/g, "") + "://" + w.location.host) : "",
+        serializables = "|INPUT|TEXTAREA|SELECT|DATALIST|BUTTON|OUTPUT|",
         started = false,
         elementProto = w.Element && w.Element.prototype,
-        ArraySlice = Array.prototype.slice,
+        ArraySlice = [].slice,
         PUSH = 1,
         REPLACE = 2,
-        supported = (
+        supported = !!(
             elementProto && history.pushState && (
                 domparser || (docImplementation && docImplementation.createHTMLDocument)
             )
-        );
+        ),
+        attrs = [
+            { attr: "containers", cfg: "containers" },
+            { attr: "updatecurrent", cfg: "updatecurrent" },
+            { attr: "updatehead", cfg: "updatehead" },
+            { attr: "insertion", cfg: "insertion" },
+            { attr: "loader", cfg: "loader" },
+            { attr: "scroll-left", cfg: "scrollLeft" },
+            { attr: "scroll-top", cfg: "scrollTop" },
+            { attr: "done", cfg: "done" },
+            { attr: "fail", cfg: "fail" }
+        ];
 
     var main = {
-        "supported": supported,
-        "remove": remove,
-        "start": start,
-        "request": function (url, cfg) {
+        supported: supported,
+        remove: remove,
+        start: start,
+        request: function (url, cfg) {
             pjaxLoad(url, cfg.replace ? REPLACE : PUSH, cfg.method, null, cfg.data);
         },
-        "on": function (name, callback) {
+        on: function (name, callback) {
             pjaxEvent(name, callback);
         },
-        "off": function (name, callback) {
+        off: function (name, callback) {
             pjaxEvent(name, callback, true);
         }
     };
 
     if (domparser) {
         try {
-            var test = parseHtml('<html><head><title>1</title></head><body>1</body></html>');
+            var test = parseHtml("<html><head><title>1</title></head><body>1</body></html>");
             domparser = !!(test.head && test.title && test.body);
         } catch (ee) {
             domparser = false;
@@ -94,7 +105,7 @@
 
     function selectorEach(context, query, callback)
     {
-        [].slice.call(context.querySelectorAll(query)).forEach(callback);
+        ArraySlice.call(context.querySelectorAll(query)).forEach(callback);
         callback = u;
     }
 
@@ -103,7 +114,7 @@
         var data = [];
 
         selectorEach(form, "[name]", function (el) {
-            if (el.name && inputRe.test(el.tagName)) {
+            if (el.name && ("|" + el.nodeName + "|").indexOf(serializables) !== -1) {
                 data.push(encodeURIComponent(el.name) + "=" + encodeURIComponent(el.value));
             }
         });
@@ -113,7 +124,7 @@
 
     function parseHtml(data)
     {
-        if (domparser) return (new DOMParser).parseFromString(data, "text/html");
+        if (domparser) return new DOMParser().parseFromString(data, "text/html");
 
         var pd = docImplementation.createHTMLDocument("");
 
@@ -168,7 +179,9 @@
     function pjaxTrigger(name, arg1, arg2, arg3)
     {
         if (evts[name]) {
-            for (var ce = evts[name], i = 0, j = ce.length; i < j; i++) ce[i](arg1, arg2, arg3);
+            for (var ce = evts[name], i = 0, j = ce.length; i < j; i++) {
+                ce[i](arg1, arg2, arg3);
+            }
         }
     }
 
@@ -191,23 +204,22 @@
     {
         var current, tmp = parseHtml(data);
 
-        var title = tmp.title || "",
-            containers = cfg.containers,
+        var containers = cfg.containers,
             insertion = cfg.insertion,
-            x = cfg.scrollLeft > 0 ? +cfg.scrollLeft : w.scrollX || w.pageXOffset,
-            y = cfg.scrollTop > 0 ? +cfg.scrollTop : w.scrollY || w.pageYOffset;
+            x = cfg.scrollLeft > -1 ? +cfg.scrollLeft : (w.scrollX || w.pageXOffset),
+            y = cfg.scrollTop > -1 ? +cfg.scrollTop : (w.scrollY || w.pageYOffset);
 
         if (state) {
-            var c = {
-                "pjaxUrl": url,
-                "pjaxData": data,
-                "pjaxConfig": cfg
+            var info = {
+                pjaxUrl: url,
+                pjaxData: data,
+                pjaxConfig: cfg
             };
 
             if (state === PUSH) {
-                history.pushState(c, title, url);
+                history.pushState(info, "", url);
             } else if (state === REPLACE) {
-                history.replaceState(c, title, url);
+                history.replaceState(info, "", url);
             }
         }
 
@@ -215,7 +227,7 @@
 
         if (cfg.updatehead && tmp.head) pjaxUpdateHead(tmp.head);
 
-        d.title = title;
+        d.title = tmp.title || "";
 
         for (var i = containers.length - 1; i >= 0; i--) {
             current = tmp.body.querySelector(containers[i]);
@@ -256,10 +268,18 @@
             return data === "true";
         } else if (!isNaN(data)) {
             return parseFloat(data);
-        } else if (/^\[[\s\S]+\]$|^\{[^:]+[:][\s\S]+\}$/.test(data)) {
-            try {
-                data = JSON.parse(data);
-            } catch (e) {}
+        }
+
+        if (data.length > 3) {
+            var l = data[0], r = data[data.length - 1];
+
+            if ((l === "[" && r === "]") || (l === "{" && r === "}")) {
+                try {
+                    data = JSON.parse(data);
+                } catch (e) {
+                    console.error("Invalid value in data-pjax-" + name + " attribute on element:", el);
+                }
+            }
         }
 
         return data;
@@ -267,38 +287,28 @@
 
     function pjaxAttributes(el)
     {
-        var current, value, cfg = JSON.parse(JSON.stringify(config)),
-            attrs = [
-                "containers", "updatecurrent", "updatehead", "insertion",
-                "loader", "scroll-left", "scroll-top", "done", "fail"
-            ];
+        var current, value, cfg = JSON.parse(JSON.stringify(config));
 
-        if (!el) return cfg;
+        if (el) {
+            for (var i = attrs.length - 1; i >= 0; i--) {
+                current = attrs[i];
 
-        for (var i = attrs.length - 1; i >= 0; i--) {
-            current = attrs[i];
+                value = getData(el, current.attr);
 
-            value = getData(el, current);
-
-            if (value) {
-                current = current.toLowerCase().replace(/-([a-z])/g, function (a, b) {
-                    return b.toUpperCase();
-                });
-
-                cfg[current] = value;
+                if (value) cfg[current.cfg] = value;
             }
         }
 
         return cfg;
     }
 
-    function pjaxFinish(url, cfg, state, el, callback, data)
+    function pjaxResolve(url, cfg, state, el, callback, data, status)
     {
         if (cfg.loader) hideLoader();
 
         if (data) pjaxParse(url, data, cfg, state);
 
-        pjaxTrigger(data ? "done" : "fail", url);
+        pjaxTrigger(data ? "done" : "fail", url, status);
         pjaxTrigger("then", url);
 
         if (callback) new Function(callback).call(el);
@@ -343,11 +353,11 @@
 
         if (evts.handler) {
             return pjaxTrigger("handler", {
-                "url": url,
-                "state": state,
-                "method": method,
-                "element": el
-            }, cfg, pjaxFinish);
+                url: url,
+                state: state,
+                method: method,
+                element: el
+            }, cfg, pjaxResolve);
         }
 
         if (config.proxy) url = config.proxy + encodeURIComponent(url);
@@ -360,18 +370,18 @@
         for (var k in headers) xhr.setRequestHeader(k, headers[k]);
 
         xhr.onreadystatechange = function () {
-            if (this.readyState !== 4) return;
+            if (xhr.readyState !== 4) return;
 
-            var status = this.status;
+            var status = xhr.status;
 
             if (status >= 200 && status < 300) {
                 var containers = xhr.getResponseHeader("X-PJAX-Container");
 
                 if (containers) cfg.containers = containers.split(",");
 
-                pjaxFinish(xhr.getResponseHeader("X-PJAX-URL") || url, cfg, state, el, cfg.done, this.responseText);
+                pjaxResolve(xhr.getResponseHeader("X-PJAX-URL") || url, cfg, state, el, cfg.done, xhr.responseText, status);
             } else {
-                pjaxFinish(url, cfg, status, el, cfg.fail);
+                pjaxResolve(url, cfg, state, el, cfg.fail, '', status);
             }
         };
 
@@ -407,46 +417,44 @@
     {
         var url, data, method, el = e.target;
 
-        if (!el.matches(config.formSelector)) return;
+        if (el.matches(config.formSelector)) {
+            method = String(el.method).toUpperCase();
 
-        method = String(el.method).toUpperCase();
+            if (method === "POST" && !formdata) return;
 
-        if (method === "POST" && !formdata) return;
+            url = el.action;
 
-        url = el.action;
+            if (method !== "POST" || el.enctype !== "multipart/form-data") {
+                data = serialize(el);
 
-        if (method !== "POST" || el.enctype !== "multipart/form-data") {
-            data = serialize(el);
+                if (method !== "POST") {
+                    url = url.replace(/\?[\s\S]+/, "") + "?";
 
-            if (method !== "POST") {
-                url = url.replace(/\?.*/g, "") + "?";
-                if (data) url += data;
-                data = null;
+                    if (data) url += data;
+
+                    data = null;
+                }
+            } else if (formdata) {
+                data = new FormData(el);
+            } else {
+                return;
             }
-        } else if (formdata) {
-            data = new FormData(el);
-        } else {
-            return;
-        }
 
-        pjaxRequest(method, url, data, el, e);
+            pjaxRequest(method, url, data, el, e);
+        }
     }
 
     function pjaxRequest(method, url, data, el, e)
     {
-        if (url === host || url.indexOf(host + "/") === 0) {
-            var target = String(el.target).toLowerCase();
+        if ((url === host || url.indexOf(host + "/") === 0) && sameWindow(el)) {
+            e.preventDefault();
 
-            if (!target || target == "_self" || target === w.name || (target === "_parent" && w === w.parent)) {
-                e.preventDefault();
+            var cfg = pjaxAttributes(el);
 
-                var cfg = pjaxAttributes(el);
-
-                if (method === "POST" || url !== w.location + "") {
-                    pjaxLoad(url, PUSH, method, el, data, cfg);
-                } else if (cfg.updatecurrent) {
-                    pjaxLoad(url, REPLACE, method, el, data, cfg);
-                }
+            if (method === "POST" || url !== w.location + "") {
+                pjaxLoad(url, PUSH, method, el, data, cfg);
+            } else if (cfg.updatecurrent) {
+                pjaxLoad(url, REPLACE, method, el, data, cfg);
             }
         }
     }
@@ -469,10 +477,10 @@
 
             if (!state || !state.pjaxUrl) {
                 history.replaceState({
-                    "pjaxUrl": url,
-                    "pjaxData": d.documentElement.outerHTML,
-                    "pjaxConfig": config
-                }, d.title, url);
+                    pjaxUrl: url,
+                    pjaxData: d.documentElement.outerHTML,
+                    pjaxConfig: config
+                }, "", url);
             }
 
             w.addEventListener("unload", pjaxAbort);
@@ -497,24 +505,36 @@
         }
     }
 
+    function sameWindow(el) {
+        var target = String(el.target).toLowerCase();
+
+        return (
+            !target ||
+            target === w.name ||
+            target === "_self" ||
+            (target === "_top" && w === w.top) ||
+            (target === "_parent" && w === w.parent)
+        );
+    }
+
     function start(opts)
     {
         if (supported && /^https?:$/.test(w.location.protocol)) {
             remove();
 
             config = {
-                "linkSelector": "a:not([data-pjax-ignore]):not([href^='#']):not([href^='javascript:'])",
-                "formSelector": "form:not([data-pjax-ignore]):not([action^='javascript:'])",
-                "containers": [ "#pjax-container" ],
-                "updatecurrent": false,
-                "updatehead": true,
-                "insertion": true,
-                "scrollLeft": 0,
-                "scrollTop": 0,
-                "nocache": false,
-                "loader": true,
-                "proxy": "",
-                "headers": {}
+                linkSelector: "a:not([data-pjax-ignore]):not([href^='#']):not([href^='javascript:'])",
+                formSelector: "form:not([data-pjax-ignore]):not([action^='javascript:'])",
+                containers: [ "#pjax-container" ],
+                updatecurrent: false,
+                updatehead: true,
+                insertion: true,
+                scrollLeft: 0,
+                scrollTop: 0,
+                nocache: false,
+                loader: true,
+                proxy: "",
+                headers: {}
             };
 
             for (var k in config) {

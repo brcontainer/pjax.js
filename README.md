@@ -29,7 +29,7 @@ Include lib
 Or use CDN:
 
 ```html
-<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/pjax.js@0.6/pjax.css" data-pjax-resource="true">
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/pjax.js@0.6/pjax.min.css" data-pjax-resource="true">
 <script src="https://cdn.jsdelivr.net/npm/pjax.js@0.6/pjax.min.js"></script>
 ```
 
@@ -103,9 +103,9 @@ Method | Description
 Example | Description
 --- | ---
 `Pjax.on("initiate", function (url, config) {...});` | Trigged when clicked in a link or submit a form
-`Pjax.on("done", function (url) {...});` | Trigged when page loaded using `$.jax`
-`Pjax.on("fail", function (url, status, error) {...});` | Trigged when page failed to load, `status` return HTTP code and `error` return message error
-`Pjax.on("then", function (url) {...});` | Executes every time a request is completed, even if it fails or success.
+`Pjax.on("done", function (url, status) {...});` | Trigged when page loaded, `status` return HTTP code
+`Pjax.on("fail", function (url, status) {...});` | Trigged when page failed to load, `status` return HTTP code
+`Pjax.on("then", function (url) {...});` | Executes every time a request is completed, even if it fails or success
 `Pjax.on("history", function (url, stateData) {...});` | Executes every use back or forward
 `Pjax.on("handler", function (data, config, callbackDone, callbackFail) {...});` | Create your owner response to Pjax.js request
 `Pjax.on("dom", function (url, newdocument) {...});` | Allows you to manipulate an element change manually, for example you can create transitions or change newdocument
@@ -120,8 +120,8 @@ Property | type | default | description
 `updatecurrent:` | `bool` | `false` | If `true` request same url in used by current page is executed `history.replaceState`, otherwise nothing will be executed
 `updatehead:` | `bool` | `true` | The "pjax.js" has an intelligent update system that helps avoid the "blink" effect, because instead of updating everything it only updates what has been changed, however if you are sure that nothing will change as you page, you can set it to false, the only one that will continue to be updated will be the `<title>` tag
 `insertion:` | `string` | `undefined` | Support values `append` and `prepend`, if omitted it will replace the content
-`scrollLeft:` | `number` | `0` | After loading a page via PJAX you can define where scrollLeft should scroll
-`scrollTop:` | `number` | `0` | After loading a page via PJAX you can define where scrollTop should scroll
+`scrollLeft:` | `number` | `0` | After loading a page via PJAX you can define where scrollLeft should scroll. Set `-1` to disable autoscroll in x-cord
+`scrollTop:` | `number` | `0` | After loading a page via PJAX you can define where scrollTop should scroll. Set `-1` to disable autoscroll in y-cord
 `loader:` | `bool` | `true` | Adds the native Pjax loader, if you want to create a loader of your own, set it to `false`
 `nocache:` | `bool` | `false` | Prevent cache
 `proxy:` | `string` | `""` | Set Web Proxy

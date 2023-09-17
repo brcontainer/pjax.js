@@ -3,7 +3,7 @@
 <head>
     <title>Example 1 - Pjax</title>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, shrink-to-fit=no">
     <link rel="shortcut icon" href="https://cdn.sstatic.net/Sites/br/img/favicon.ico">
     <link rel="stylesheet" type="text/css" href="assets/pjax.css" data-pjax-resource="true">
     <script src="assets/pjax.js" data-pjax-resource="true"></script>
@@ -29,14 +29,28 @@
     </script>
 
     <ul>
-        <li><a href="./">Home</a></li>
+        <li><a href="./"><strong>Home</strong></a></li>
         <li><a target="_blank" href="./">Home (target="_blank")</a></li>
-        <li><a href="example-1.html"><strong>Example 1</strong></a></li>
+        <li><a href="example-1.html"><strong>Example 1</strong> xyz</a></li>
         <li><a href="example-2.html">Example 2</a></li>
-        <li><a href="example-3.html">Example 3</a></li>
+        <li>
+            <a href="example-3.html" data-pjax-done="console.info('done', this);">
+                Example 3 (set event with <code>data-pjax-done</code> attribute)
+            </a>
+        </li>
+        <li>
+            <a href="example-3.1.html" data-pjax-fail="console.error('fail', this);">
+                Not Found (set event with <code>data-pjax-fail</code> attribute)
+            </a>
+        </li>
         <li><a href="example-3.html" target="foobar">Example 3 (target="foobar")</a></li>
+        <li><a href="example-4.html" target="foobar">Example 4 (target="foobar")</a></li>
+        <li><a href="example-5.html" target="foobar">Example 5 (target="foobar")</a></li>
         <li><a href="https://github.com/brcontainer/pjax.js/">External (without target)</a></li>
         <li><a target="_blank" href="https://github.com/brcontainer/pjax.js/issues">External (target="_blank")</a></li>
+        <li><a href="example-5.html" data-pjax-ignore="true">data-pjax-ignore attribute</a></li>
+        <li><a href="empty.html">empty page</a></li>
+        <li><a href="javascript:void(console.log('Pjax', new Date))">href="javascript:"</a></li>
     </ul>
     <div id="pjax-container">
         <h1>Example 1</h1>
