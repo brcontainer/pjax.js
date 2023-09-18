@@ -8,10 +8,13 @@
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/brcontainer/pjax.js"
+        "url": "git+https://github.com/brcontainer/pjax.js.git"
     },
     "keywords": [
-        "pjax", "pushstate", "ajax", "history"
+        "pjax",
+        "pushstate",
+        "ajax",
+        "history"
     ],
     "author": "Guilherme Nascimento (brcontainer@yahoo.com.br)",
     "license": "MIT",
@@ -20,6 +23,9 @@
     },
     "homepage": "https://github.com/brcontainer/pjax.js#readme",
     "files": [
-        "pjax.js", "pjax.min.js", "pjax.css", "pjax.min.css"
+        "pjax.js",
+        "pjax.min.js",
+        "pjax.css",
+        "pjax.min.css"
     ]
 }
