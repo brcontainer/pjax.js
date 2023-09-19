@@ -54,6 +54,10 @@ if (is_file($current)) {
             $type = 'application/octet-stream';
     }
 
+    if ($path === '/redirect.html') {
+        header("X-PJAX-URL: /foobar_{$_SERVER['REQUEST_TIME']}.html");
+    }
+
     header('Content-Type: ' . $type);
 
     $data = file_get_contents($current);

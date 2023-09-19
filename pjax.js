@@ -1,5 +1,5 @@
 /*
- * Pjax.js 0.6.5
+ * Pjax.js 0.6.6
  *
  * Copyright (c) 2023 Guilherme Nascimento (brcontainer@yahoo.com.br)
  *
@@ -346,11 +346,6 @@
 
         if (cfg.loader) showLoader();
 
-        var headers = config.headers;
-
-        headers["X-PJAX-Container"] = cfg.containers.join(",");
-        headers["X-PJAX"] = "true";
-
         if (evts.handler) {
             return pjaxTrigger("handler", {
                 url: url,
@@ -360,12 +355,17 @@
             }, cfg, pjaxResolve);
         }
 
-        if (config.proxy) url = config.proxy + encodeURIComponent(url);
+        var reqUrl = url, headers = config.headers;
 
-        if (config.nocache) url = pjaxNoCache(url);
+        headers["X-PJAX-Container"] = cfg.containers.join(",");
+        headers["X-PJAX"] = "true";
+
+        if (config.proxy) reqUrl = config.proxy + encodeURIComponent(reqUrl);
+
+        if (config.nocache) reqUrl = pjaxNoCache(reqUrl);
 
         xhr = new XMLHttpRequest;
-        xhr.open(method, url, true);
+        xhr.open(method, reqUrl, true);
 
         for (var k in headers) xhr.setRequestHeader(k, headers[k]);
 
