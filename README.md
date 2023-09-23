@@ -97,12 +97,13 @@ Method | Description
 `Pjax.supported` | Return `true` if support this lib, otherwise return `false`
 `Pjax.remove("remove");` | Remove PJAX requests and events
 `Pjax.on(event, function (...) {...});` | Define an event
+`Pjax.request()` | Request
 
 ## Pjax Events
 
 Example | Description
 --- | ---
-`Pjax.on("initiate", function (url, config) {...});` | Trigged when clicked in a link or submit a form
+`Pjax.on("initiate", function (url, config) {...});` | Trigged when clicked in a link or submit a form or execute `Pjax.request()` method
 `Pjax.on("done", function (url, status) {...});` | Trigged when page loaded, `status` return HTTP code
 `Pjax.on("fail", function (url, status) {...});` | Trigged when page failed to load, `status` return HTTP code
 `Pjax.on("then", function (url) {...});` | Executes every time a request is completed, even if it fails or success

@@ -6,20 +6,19 @@
  * Released under the MIT license
  */
 
-(function (u) {
+(function () {
     "use strict";
 
-    var xhr, config, timer, loader,
+    var xhr, config, timer, loader, undef,
         w = typeof window !== "undefined" ? window : {},
         d = w.document || {},
         history = w.history,
-        URL = w.URL,
         domparser = !!w.DOMParser,
         formdata = !!w.FormData,
         evts = {},
         docImplementation = d.implementation,
         location = w.location,
-        host = location ? (location.protocol.replace(/:/g, "") + "://" + w.location.host) : "",
+        origin = location ? (location.protocol + "//" + location.host) : "",
         serializables = "|INPUT|TEXTAREA|SELECT|DATALIST|BUTTON|OUTPUT|",
         started = false,
         elementProto = w.Element && w.Element.prototype,
@@ -48,7 +47,7 @@
         remove: remove,
         start: start,
         request: function (url, cfg) {
-            pjaxLoad(url, cfg.replace ? REPLACE : PUSH, cfg.method, null, cfg.data);
+            if (started) pjaxLoad(url, cfg.replace ? REPLACE : PUSH, cfg.method, undef, cfg.data, config);
         },
         on: function (name, callback) {
             pjaxEvent(name, callback);
@@ -106,7 +105,7 @@
     function selectorEach(context, query, callback)
     {
         ArraySlice.call(context.querySelectorAll(query)).forEach(callback);
-        callback = u;
+        callback = undef;
     }
 
     function serialize(form)
@@ -173,7 +172,7 @@
             if (!getData(j[i], "resource")) d.head.appendChild(j[i]);
         }
 
-        frag = nodes = null;
+        frag = nodes = undef;
     }
 
     function pjaxTrigger(name, arg1, arg2, arg3)
@@ -202,42 +201,47 @@
 
     function pjaxParse(url, data, cfg, state)
     {
-        var current, tmp = parseHtml(data);
+        var current,
+            containers = cfg.containers,
+            tmp = data && parseHtml(data),
+            body = tmp && tmp.body;
 
-        var containers = cfg.containers,
-            insertion = cfg.insertion,
-            x = cfg.scrollLeft > -1 ? +cfg.scrollLeft : (w.scrollX || w.pageXOffset),
-            y = cfg.scrollTop > -1 ? +cfg.scrollTop : (w.scrollY || w.pageYOffset);
+        if (!body || !body.querySelectorAll(containers.join(',')).length) {
+            return 'No such containers';
+        }
 
-        if (state) {
-            var info = {
-                pjaxUrl: url,
-                pjaxData: data,
-                pjaxConfig: cfg
-            };
+        var info = {
+            pjaxUrl: url,
+            pjaxData: data,
+            pjaxConfig: cfg
+        };
 
-            if (state === PUSH) {
-                history.pushState(info, "", url);
-            } else if (state === REPLACE) {
-                history.replaceState(info, "", url);
-            }
+        if (state === PUSH) {
+            history.pushState(info, "", url);
+        } else {
+            history.replaceState(info, "", url);
         }
 
         if (evts.dom) return pjaxTrigger("dom", url, tmp);
+
+        var insertion = cfg.insertion,
+            scrollX = cfg.scrollLeft > -1 ? +cfg.scrollLeft : (w.scrollX || w.pageXOffset),
+            scrollY = cfg.scrollTop > -1 ? +cfg.scrollTop : (w.scrollY || w.pageYOffset);
 
         if (cfg.updatehead && tmp.head) pjaxUpdateHead(tmp.head);
 
         d.title = tmp.title || "";
 
         for (var i = containers.length - 1; i >= 0; i--) {
-            current = tmp.body.querySelector(containers[i]);
+            current = body.querySelector(containers[i]);
 
             if (current) {
                 selectorEach(d, containers[i], function (el) {
                     if (insertion === "append" || insertion === "prepend") {
-                        var fragment = d.createDocumentFragment();
+                        var fragment = d.createDocumentFragment(),
+                            nodes = ArraySlice.call(current.childNodes);
 
-                        for (var i = 0, nodes = ArraySlice.call(current.childNodes), j = nodes.length; i < j; ++i) {
+                        for (var i = 0, j = nodes.length; i < j; ++i) {
                             fragment.appendChild(nodes[i]);
                         }
 
@@ -247,7 +251,7 @@
                             el.insertBefore(fragment, el.firstChild);
                         }
 
-                        fragment = null;
+                        fragment = undef;
                     } else {
                         el.innerHTML = current.innerHTML;
                     }
@@ -255,9 +259,9 @@
             }
         }
 
-        w.scrollTo(x, y);
+        w.scrollTo(scrollX, scrollY);
 
-        tmp = containers = null;
+        tmp = containers = undef;
     }
 
     function getData(el, name)
@@ -295,20 +299,21 @@
 
                 value = getData(el, current.attr);
 
-                if (value) cfg[current.cfg] = value;
+                if (value !== "") cfg[current.cfg] = value;
             }
         }
 
         return cfg;
     }
 
-    function pjaxResolve(url, cfg, state, el, callback, data, status)
+    function pjaxResolve(url, cfg, state, el, callback, data, status, error)
     {
         if (cfg.loader) hideLoader();
 
-        if (data) pjaxParse(url, data, cfg, state);
+        if (!error) error = pjaxParse(url, data, cfg, state);
 
-        pjaxTrigger(data ? "done" : "fail", url, status);
+        pjaxTrigger(error ? "fail" : "done", url, status, error);
+
         pjaxTrigger("then", url);
 
         if (callback) new Function(callback).call(el);
@@ -321,21 +326,8 @@
 
     function pjaxNoCache(url)
     {
-        var u, n = "_=" + (+new Date);
-
-        if (!URL) {
-            u = new URL(url);
-        } else {
-            u = d.createElement("a");
-            u.href = url;
-        }
-
-        u.search += (u.search ? "&" : "?") + n;
-
-        url = u + "";
-        u = null;
-
-        return url;
+        var extra = "_=" + (+new Date);
+        return url + (url.indexOf('?') === -1 ? "?" : "&") + extra;
     }
 
     function pjaxLoad(url, state, method, el, data, cfg)
@@ -365,23 +357,26 @@
         if (config.nocache) reqUrl = pjaxNoCache(reqUrl);
 
         xhr = new XMLHttpRequest;
+
         xhr.open(method, reqUrl, true);
 
-        for (var k in headers) xhr.setRequestHeader(k, headers[k]);
+        for (var k in headers) {
+            xhr.setRequestHeader(k, headers[k]);
+        }
 
         xhr.onreadystatechange = function () {
-            if (xhr.readyState !== 4) return;
+            if (xhr.readyState === 4) {
+                var status = xhr.status;
 
-            var status = xhr.status;
+                if (status >= 200 && status < 300) {
+                    var containers = xhr.getResponseHeader("X-PJAX-Container");
 
-            if (status >= 200 && status < 300) {
-                var containers = xhr.getResponseHeader("X-PJAX-Container");
+                    if (containers) cfg.containers = containers.split(",");
 
-                if (containers) cfg.containers = containers.split(",");
-
-                pjaxResolve(xhr.getResponseHeader("X-PJAX-URL") || url, cfg, state, el, cfg.done, xhr.responseText, status);
-            } else {
-                pjaxResolve(url, cfg, state, el, cfg.fail, '', status);
+                    pjaxResolve(xhr.getResponseHeader("X-PJAX-URL") || url, cfg, state, el, cfg.done, xhr.responseText, status, undef);
+                } else {
+                    pjaxResolve(url, cfg, state, el, cfg.fail, '', status, 'HTTP Error (' + status + ')');
+                }
             }
         };
 
@@ -409,7 +404,7 @@
                 url = el.href;
             }
 
-            pjaxRequest("GET", url, null, el, e);
+            pjaxRequest("GET", url, undef, el, e);
         }
     }
 
@@ -432,7 +427,7 @@
 
                     if (data) url += data;
 
-                    data = null;
+                    data = undef;
                 }
             } else if (formdata) {
                 data = new FormData(el);
@@ -446,7 +441,7 @@
 
     function pjaxRequest(method, url, data, el, e)
     {
-        if ((url === host || url.indexOf(host + "/") === 0) && sameWindow(el)) {
+        if ((url === origin || url.indexOf(origin + "/") === 0) && sameWindow(el.target || "")) {
             e.preventDefault();
 
             var cfg = pjaxAttributes(el);
@@ -501,12 +496,12 @@
             w.removeEventListener("popstate", pjaxState);
 
             started = false;
-            config = u;
+            config = undef;
         }
     }
 
-    function sameWindow(el) {
-        var target = String(el.target).toLowerCase();
+    function sameWindow(target) {
+        target = target.toLowerCase();
 
         return (
             !target ||
@@ -528,12 +523,12 @@
                 containers: [ "#pjax-container" ],
                 updatecurrent: false,
                 updatehead: true,
-                insertion: true,
+                insertion: undef,
+                proxy: undef,
                 scrollLeft: 0,
                 scrollTop: 0,
                 nocache: false,
                 loader: true,
-                proxy: "",
                 headers: {}
             };
 
@@ -541,7 +536,7 @@
                 if (opts && k in opts) config[k] = opts[k];
             }
 
-            opts = null;
+            opts = undef;
 
             if (/^(interactive|complete)$/.test(d.readyState)) {
                 ready();

@@ -11,19 +11,19 @@
     Pjax.start();
 
     Pjax.on('initiate', function (url, config) {
-        console.info('Pjax.on(initiate)', { url, config });
+        console.info('Pjax.on(initiate)', { url: url, config: config });
     });
     Pjax.on('done', function (url, status) {
-        console.info('Pjax.on(done)', { url, status });
+        console.info('Pjax.on(done)', { url: url, status: status });
     });
     Pjax.on('fail', function (url, status, error) {
-        console.error('Pjax.on(fail)', { url, status, error });
+        console.error('Pjax.on(fail)', { url: url, status: status, error: error });
     });
     Pjax.on('then', function (url) {
-        console.info('Pjax.on(then)', { url });
+        console.info('Pjax.on(then)', url);
     });
-    Pjax.on('history', function (url, stateData) {
-        console.info('Pjax.on(history)', { url, stateData });
+    Pjax.on('history', function (url, data) {
+        console.info('Pjax.on(history)', { url: url, data: data });
     });
     </script>
     <style type="text/css">
