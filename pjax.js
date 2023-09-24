@@ -268,13 +268,11 @@
     {
         var data = el.getAttribute("data-pjax-" + name);
 
-        if (data === "true" || data === "false") {
-            return data === "true";
-        } else if (!data) {
-            return "";
-        } else if (!isNaN(data)) {
-            return parseFloat(data);
-        }
+        if (data === "true" || data === "false") return data === "true";
+
+        if (!data) return "";
+
+        if (!isNaN(data)) return parseFloat(data);
 
         if (data.length > 3) {
             var l = data[0], r = data[data.length - 1];
