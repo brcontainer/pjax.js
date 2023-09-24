@@ -113,7 +113,7 @@
         var data = [];
 
         selectorEach(form, "[name]", function (el) {
-            if (el.name && ("|" + el.nodeName + "|").indexOf(serializables) !== -1) {
+            if (el.name && serializables.indexOf("|" + el.nodeName + "|") !== -1) {
                 data.push(encodeURIComponent(el.name) + "=" + encodeURIComponent(el.value));
             }
         });
@@ -206,8 +206,8 @@
             tmp = data && parseHtml(data),
             body = tmp && tmp.body;
 
-        if (!body || !body.querySelectorAll(containers.join(',')).length) {
-            return 'No such containers';
+        if (!body || !body.querySelectorAll(containers.join(",")).length) {
+            return "No such containers";
         }
 
         var info = {
@@ -270,6 +270,8 @@
 
         if (data === "true" || data === "false") {
             return data === "true";
+        } else if (!data) {
+            return "";
         } else if (!isNaN(data)) {
             return parseFloat(data);
         }
@@ -327,7 +329,7 @@
     function pjaxNoCache(url)
     {
         var extra = "_=" + (+new Date);
-        return url + (url.indexOf('?') === -1 ? "?" : "&") + extra;
+        return url + (url.indexOf("?") === -1 ? "?" : "&") + extra;
     }
 
     function pjaxLoad(url, state, method, el, data, cfg)
@@ -347,14 +349,14 @@
             }, cfg, pjaxResolve);
         }
 
-        var reqUrl = url, headers = config.headers;
+        var reqUrl = url, headers = cfg.headers;
 
         headers["X-PJAX-Container"] = cfg.containers.join(",");
         headers["X-PJAX"] = "true";
 
-        if (config.proxy) reqUrl = config.proxy + encodeURIComponent(reqUrl);
+        if (cfg.proxy) reqUrl = cfg.proxy + encodeURIComponent(reqUrl);
 
-        if (config.nocache) reqUrl = pjaxNoCache(reqUrl);
+        if (cfg.nocache) reqUrl = pjaxNoCache(reqUrl);
 
         xhr = new XMLHttpRequest;
 
@@ -375,7 +377,7 @@
 
                     pjaxResolve(xhr.getResponseHeader("X-PJAX-URL") || url, cfg, state, el, cfg.done, xhr.responseText, status, undef);
                 } else {
-                    pjaxResolve(url, cfg, state, el, cfg.fail, '', status, 'HTTP Error (' + status + ')');
+                    pjaxResolve(url, cfg, state, el, cfg.fail, "", status, "HTTP Error (" + status + ")");
                 }
             }
         };
@@ -410,17 +412,17 @@
 
     function pjaxForm(e)
     {
-        var url, data, method, el = e.target;
+        var url, data, method, form = e.target;
 
-        if (el.matches(config.formSelector)) {
-            method = String(el.method).toUpperCase();
+        if (form.matches(config.formSelector)) {
+            method = String(form.method).toUpperCase();
 
             if (method === "POST" && !formdata) return;
 
-            url = el.action;
+            url = form.action;
 
-            if (method !== "POST" || el.enctype !== "multipart/form-data") {
-                data = serialize(el);
+            if (method !== "POST" || form.enctype !== "multipart/form-data") {
+                data = serialize(form);
 
                 if (method !== "POST") {
                     url = url.replace(/\?[\s\S]+/, "") + "?";
@@ -429,13 +431,14 @@
 
                     data = undef;
                 }
+
             } else if (formdata) {
-                data = new FormData(el);
+                data = new FormData(form);
             } else {
                 return;
             }
 
-            pjaxRequest(method, url, data, el, e);
+            pjaxRequest(method, url, data, form, e);
         }
     }
 
@@ -446,7 +449,7 @@
 
             var cfg = pjaxAttributes(el);
 
-            if (method === "POST" || url !== w.location + "") {
+            if (method === "POST" || url !== location + "") {
                 pjaxLoad(url, PUSH, method, el, data, cfg);
             } else if (cfg.updatecurrent) {
                 pjaxLoad(url, REPLACE, method, el, data, cfg);
@@ -468,7 +471,7 @@
         if (!started) {
             started = true;
 
-            var url = w.location + "", state = w.history.state;
+            var url = location + "", state = history.state;
 
             if (!state || !state.pjaxUrl) {
                 history.replaceState({
@@ -514,7 +517,7 @@
 
     function start(opts)
     {
-        if (supported && /^https?:$/.test(w.location.protocol)) {
+        if (supported && /^https?:$/.test(location.protocol)) {
             remove();
 
             config = {
@@ -549,7 +552,7 @@
     if (elementProto && !elementProto.matches) {
         elementProto.matches = elementProto.matchesSelector || elementProto.mozMatchesSelector || elementProto.msMatchesSelector ||
         elementProto.oMatchesSelector || elementProto.webkitMatchesSelector || function (query) {
-            var els = (this.document || this.ownerDocument).querySelectorAll(query), i = els.length;
+            var node = els = (this.document || this.ownerDocument).querySelectorAll(query), i = els.length;
 
             while (--i >= 0 && els[i] !== this);
             return i > -1;
