@@ -552,9 +552,10 @@
     if (elementProto && !elementProto.matches) {
         elementProto.matches = elementProto.matchesSelector || elementProto.mozMatchesSelector || elementProto.msMatchesSelector ||
         elementProto.oMatchesSelector || elementProto.webkitMatchesSelector || function (query) {
-            var node = els = (this.document || this.ownerDocument).querySelectorAll(query), i = els.length;
+            var el = this, els = (el.document || el.ownerDocument).querySelectorAll(query), i = els.length;
 
-            while (--i >= 0 && els[i] !== this);
+            while (--i >= 0 && els[i] !== el);
+
             return i > -1;
         };
     }
