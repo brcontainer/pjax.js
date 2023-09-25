@@ -1,5 +1,5 @@
 /*
- * Pjax.js 0.6.6
+ * Pjax.js 0.6.7
  *
  * Copyright (c) 2023 Guilherme Nascimento (brcontainer@yahoo.com.br)
  *
@@ -225,7 +225,7 @@
 
         if (state === PUSH) {
             history.pushState(info, "", url);
-        } else {
+        } else if (state === REPLACE) {
             history.replaceState(info, "", url);
         }
 
@@ -455,7 +455,7 @@
     {
         if (e.state && e.state.pjaxUrl) {
             pjaxAbort();
-            pjaxParse(e.state.pjaxUrl, e.state.pjaxData, e.state.pjaxConfig, false);
+            pjaxParse(e.state.pjaxUrl, e.state.pjaxData, e.state.pjaxConfig, undef);
             pjaxTrigger("history", e.state.pjaxUrl, e.state);
         }
     }

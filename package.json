@@ -1,6 +1,6 @@
 {
     "name": "pjax.js",
-    "version": "0.6.6",
+    "version": "0.6.7",
     "description": "Turn any website in a Pjax website (history.pushState + Ajax)",
     "main": "pjax.js",
     "scripts": {
