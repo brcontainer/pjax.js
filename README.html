@@ -1161,12 +1161,75 @@ body .markdown-body
 <td>Return <code>true</code> if support this lib, otherwise return <code>false</code></td>
 </tr>
 <tr>
-<td><code>Pjax.remove("remove");</code></td>
+<td><code>Pjax.remove();</code></td>
 <td>Remove PJAX requests and events</td>
 </tr>
 <tr>
 <td><code>Pjax.on(event, function (...) {...});</code></td>
 <td>Define an event</td>
+</tr>
+<tr>
+<td><code>Pjax.off(event, function (...) {...});</code></td>
+<td>Remove an event</td>
+</tr>
+<tr>
+<td><code>Pjax.request(url[, config])</code></td>
+<td>Request using script</td>
+</tr>
+</tbody>
+</table>
+<h3 id="pjaxrequest-method"><code>Pjax.request()</code> method<a class="headerlink" href="#pjaxrequest-method" title="Permanent link"></a></h3>
+<p><code>config</code> param is optional, you can define like this:</p>
+<div class="highlight"><pre>Pjax.request(&quot;/foo/bar&quot;, {
+    method: &quot;POST&quot;,
+    replace: true,
+    data: &quot;foo=1&amp;bar=2&amp;baz=3&quot;
+});
+</pre></div>
+
+<p>Uploading file:</p>
+<div class="highlight"><pre>const formdata = new FormData;
+const blob = new Blob([&quot;Hello World!&quot;], {
+  type: &quot;text/plain&quot;
+});
+
+formdata.append(&quot;file&quot;, blob, &quot;hello.txt&quot;);
+
+Pjax.request(&quot;/foo/bar&quot;, {
+    method: &quot;POST&quot;,
+    replace: true,
+    data: formdata
+});
+</pre></div>
+
+<p>Details for use <code>data:</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>replace:</code></td>
+<td><code>bool</code></td>
+<td><code>false</code></td>
+<td>Sets the history state mode, if you set it to <code>false</code> (or omitted) it will use <code>history.pushState()</code>, but if you set it to <code>true</code> it will use <code>history.replaceState()</code>.</td>
+</tr>
+<tr>
+<td><code>method:</code></td>
+<td><code>string</code></td>
+<td><code>GET</code></td>
+<td>Define HTTP method</td>
+</tr>
+<tr>
+<td><code>data:</code></td>
+<td><code>bool</code></td>
+<td><code>false</code></td>
+<td>To send data in the request, you can use <code>String</code> or <code>FormData</code></td>
 </tr>
 </tbody>
 </table>
@@ -1181,7 +1244,7 @@ body .markdown-body
 <tbody>
 <tr>
 <td><code>Pjax.on("initiate", function (url, config) {...});</code></td>
-<td>Trigged when clicked in a link or submit a form</td>
+<td>Trigged when clicked in a link or submit a form or execute <code>Pjax.request()</code> method</td>
 </tr>
 <tr>
 <td><code>Pjax.on("done", function (url, status) {...});</code></td>

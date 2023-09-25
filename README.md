@@ -95,9 +95,47 @@ Pjax.start();
 Method | Description
 --- | ---
 `Pjax.supported` | Return `true` if support this lib, otherwise return `false`
-`Pjax.remove("remove");` | Remove PJAX requests and events
+`Pjax.remove();` | Remove PJAX requests and events
 `Pjax.on(event, function (...) {...});` | Define an event
-`Pjax.request()` | Request
+`Pjax.off(event, function (...) {...});` | Remove an event
+`Pjax.request(url[, config])` | Request using script
+
+### `Pjax.request()` method
+
+`config` param is optional, you can define like this:
+
+```
+Pjax.request("/foo/bar", {
+    method: "POST",
+    replace: true,
+    data: "foo=1&bar=2&baz=3"
+});
+```
+
+Uploading file:
+
+```
+const formdata = new FormData;
+const blob = new Blob(["Hello World!"], {
+  type: "text/plain"
+});
+
+formdata.append("file", blob, "hello.txt");
+
+Pjax.request("/foo/bar", {
+    method: "POST",
+    replace: true,
+    data: formdata
+});
+```
+
+Details for use `data:`:
+
+Property | type | default | description
+--- | --- | --- | ---
+`replace:` | `bool` | `false` | Sets the history state mode, if you set it to `false` (or omitted) it will use `history.pushState()`, but if you set it to `true` it will use `history.replaceState()`.
+`method:` | `string` | `GET` | Define HTTP method
+`data:` | `bool` | `false` | To send data in the request, you can use `String` or `FormData`
 
 ## Pjax Events
 

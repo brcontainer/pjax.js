@@ -144,7 +144,7 @@
 
     function pjaxUpdateHead(tmp)
     {
-        var index, frag, nodes = [], dHead = doc.children;
+        var index, frag, nodes = [], dHead = doc.head;
 
         selectorEach(tmp.head.children, undef, function (el) {
             if (el.tagName !== "TITLE") {
@@ -400,7 +400,7 @@
 
             url = el.href;
 
-            if (el.matches(config.linkSelector) && sameWindowOrigin(el.target, url)) {
+            if (url && el.matches(config.linkSelector) && sameWindowOrigin(el.target, url)) {
                 pjaxRequest("GET", url, undef, el, event, pjaxAttributes(el));
             }
         }
