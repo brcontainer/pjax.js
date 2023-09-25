@@ -418,7 +418,9 @@
 
             if (method !== "POST") method = "GET";
 
-            if (urlparams && (method === "GET" || enctype !== "multipart/form-data")) {
+            if (method === "GET" || enctype !== "multipart/form-data") {
+                if (!urlparams) return;
+
                 data = serialize(data);
 
                 if (method === "GET") {
