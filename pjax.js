@@ -1,5 +1,5 @@
 /*
- * Pjax.js 0.6.7
+ * Pjax.js 0.7.0
  *
  * Copyright (c) 2023 Guilherme Nascimento (brcontainer@yahoo.com.br)
  *
@@ -32,8 +32,8 @@
         ),
         attrs = [
             { attr: "containers", cfg: "containers" },
-            { attr: "updatecurrent", cfg: "updatecurrent" },
-            { attr: "updatehead", cfg: "updatehead" },
+            { attr: "replace", cfg: "replace" },
+            { attr: "updateHead", cfg: "updateHead" },
             { attr: "insertion", cfg: "insertion" },
             { attr: "loader", cfg: "loader" },
             { attr: "scroll-left", cfg: "scrollLeft" },
@@ -206,7 +206,7 @@
         }
     }
 
-    function pjaxParse(url, data, cfg, state)
+    function pjaxParse(url, data, cfg, mode)
     {
         var current,
             containers = cfg.containers,
@@ -223,19 +223,19 @@
             pjaxConfig: cfg
         };
 
-        if (state === PUSH) {
+        if (mode === PUSH) {
             history.pushState(info, "", url);
-        } else if (state === REPLACE) {
+        } else if (mode === REPLACE) {
             history.replaceState(info, "", url);
         }
 
-        if (evts.dom) return pjaxTrigger("dom", url, tmp);
+        if (evts.dom) pjaxTrigger("dom", url, tmp);
 
         var insertion = cfg.insertion,
             scrollX = cfg.scrollLeft > -1 ? +cfg.scrollLeft : (win.scrollX || win.pageXOffset),
             scrollY = cfg.scrollTop > -1 ? +cfg.scrollTop : (win.scrollY || win.pageYOffset);
 
-        if (cfg.updatehead && tmp.head) pjaxUpdateHead(tmp);
+        if (cfg.updateHead && tmp.head) pjaxUpdateHead(tmp);
 
         doc.title = tmp.title || "";
 
@@ -312,11 +312,11 @@
         return cfg;
     }
 
-    function pjaxResolve(url, cfg, state, el, callback, data, status, error)
+    function pjaxResolve(url, cfg, mode, el, callback, data, status, error)
     {
         if (cfg.loader) hideLoader();
 
-        if (!error) error = pjaxParse(url, data, cfg, state);
+        if (!error) error = pjaxParse(url, data, cfg, mode);
 
         pjaxTrigger(error ? "fail" : "done", url, status, error);
 
@@ -336,7 +336,7 @@
         return url + (url.indexOf("?") === -1 ? "?" : "&") + extra;
     }
 
-    function pjaxLoad(url, state, method, data, el, cfg)
+    function pjaxLoad(url, mode, method, data, el, cfg)
     {
         pjaxAbort();
 
@@ -347,13 +347,13 @@
         if (evts.handler) {
             return pjaxTrigger("handler", {
                 url: url,
-                state: state,
                 method: method,
-                element: el
+                element: el,
+                replace: mode === REPLACE
             }, function (content) {
-                pjaxResolve(url, cfg, state, el, cfg.done, content, 0, undef);
+                pjaxResolve(url, cfg, mode, el, cfg.done, content, 0, undef);
             }, function (error) {
-                pjaxResolve(url, cfg, state, el, cfg.fail, "", -1, error);
+                pjaxResolve(url, cfg, mode, el, cfg.fail, "", -1, error);
             });
         }
 
@@ -383,9 +383,9 @@
 
                     if (containers) cfg.containers = containers.split(",");
 
-                    pjaxResolve(xhr.getResponseHeader("X-PJAX-URL") || url, cfg, state, el, cfg.done, xhr.responseText, status, undef);
+                    pjaxResolve(xhr.getResponseHeader("X-PJAX-URL") || url, cfg, mode, el, cfg.done, xhr.responseText, status, undef);
                 } else {
-                    pjaxResolve(url, cfg, state, el, cfg.fail, "", status, "HTTP Error (" + status + ")");
+                    pjaxResolve(url, cfg, mode, el, cfg.fail, "", status, "HTTP Error (" + status + ")");
                 }
             }
         };
@@ -450,7 +450,7 @@
     {
         event.preventDefault();
 
-        var mode = cfg.updatecurrent || url === location + "" ? REPLACE : PUSH;
+        var mode = cfg.replace || url === location + "" ? REPLACE : PUSH;
 
         pjaxLoad(url, mode, method, data, el, cfg);
     }
@@ -469,7 +469,7 @@
         if (!started) {
             started = true;
 
-            var url = location + "", state = history.state;
+            var url = location + "";
 
             history.replaceState({
                 pjaxUrl: url,
@@ -523,8 +523,8 @@
                 linkSelector: "a:not([data-pjax-ignore]):not([href^='#']):not([href^='javascript:'])",
                 formSelector: "form:not([data-pjax-ignore]):not([action^='javascript:'])",
                 containers: [ "#pjax-container" ],
-                updatecurrent: false,
-                updatehead: true,
+                replace: false,
+                updateHead: true,
                 insertion: undef,
                 proxy: undef,
                 scrollLeft: 0,
