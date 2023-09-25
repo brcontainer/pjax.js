@@ -350,7 +350,11 @@
                 state: state,
                 method: method,
                 element: el
-            }, cfg, pjaxResolve);
+            }, function (content) {
+                pjaxResolve(url, cfg, state, el, cfg.done, content, 0, undef);
+            }, function (error) {
+                pjaxResolve(url, cfg, state, el, cfg.fail, "", -1, error);
+            });
         }
 
         var reqUrl = url, headers = cfg.headers;

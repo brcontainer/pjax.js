@@ -324,13 +324,19 @@ HTML:
 For create a custom responses for Pjax you can use `handler` event, example:
 
 ```javascript
-Pjax.start({
-    updatehead: false //Prevent remove itens in head
-});
+Pjax.start();
 
-Pjax.on("handler", function (hdata, config, done, fail) {
+Pjax.on("handler", function (details, done, fail) {
+    console.log("handler request:", details.method, details.url);
+    console.log("handler target:", details.element);
+    console.log("handler mode history:", details.state); // 1 == push, 2 == replace
+
     setTimeout(function () {
-        done(hdata.url, '<div id="pjax-container">Foo: ' + new Date() + '</div>', config, hdata.state);
+        if (<condition for history state>) {
+            done('<div id="pjax-container">Foo: ' + new Date() + '</div>');
+        } else {
+            fail("Custom Error");
+        }
     }, 1000);
 });
 ```

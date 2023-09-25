@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Handler with Pjax</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, shrink-to-fit=no">
+    <link rel="shortcut icon" href="/icons/redirect.ico">
+    <link rel="stylesheet" type="text/css" href="assets/pjax.css" data-pjax-resource="true">
+    <script src="assets/pjax.js" data-pjax-resource="true"></script>
+    <script data-pjax-resource="true">
+    Pjax.start();
+
+    Pjax.on("handler", function (details, done, fail) {
+        console.log("handler request:", details.method, details.url);
+        console.log("handler target:", details.element);
+        console.log("handler mode history:", details.state); // 1 == push, 2 == replace
+
+        setTimeout(function () {
+            if (details.url.indexOf("/error.html") !== -1) {
+                fail("Custom Error");
+            } else {
+                done('<div id="pjax-container">Foo: ' + new Date() + '</div>');
+            }
+        }, 1000);
+    });
+    </script>
+    <style type="text/css">
+    #notice {
+        background-color: #188abd;
+        color: #fff;
+        padding: 5px 15px;
+    }
+    </style>
+</head>
+<body>
+
+    <script type="text/javascript">
+    if (!Pjax.supported) {
+        document.write('<div id="notice">');
+        document.write('<p>Your browser don\'t support Pjax, using normal navigation</p>');
+        document.write('</div>');
+    }
+    </script>
+
+    <ul>
+        <li><a href="foo.html"><strong>foo.html</strong></a></li>
+        <li><a href="bar.html"><strong>bar.html</strong></a></li>
+        <li><a href="baz.html"><strong>baz.html</strong></a></li>
+        <li><a href="error.html"><strong>error.html</strong></a></li>
+    </ul>
+    <div id="pjax-container">
+        <h1>Simulate navigation</h1>
+    </div>
+</body>
+</html>
