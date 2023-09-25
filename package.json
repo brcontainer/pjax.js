@@ -13,8 +13,9 @@
     "keywords": [
         "pjax",
         "pushstate",
+        "history",
         "ajax",
-        "history"
+        "xmlhttprequest"
     ],
     "author": "Guilherme Nascimento (brcontainer@yahoo.com.br)",
     "license": "MIT",
