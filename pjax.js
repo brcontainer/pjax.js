@@ -443,7 +443,7 @@
 
     function serialize(data)
     {
-        return new URLSearchParams(data).toString();
+        return new URLSearchParams(data) + "";
     }
 
     function pjaxRequest(method, url, data, el, event, cfg)
@@ -469,7 +469,7 @@
         if (!started) {
             started = true;
 
-            var url = location + "", state = history.state;
+            var url = location + "";
 
             history.replaceState({
                 pjaxUrl: url,
