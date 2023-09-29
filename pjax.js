@@ -25,6 +25,7 @@
         ArraySlice = [].slice,
         PUSH = 1,
         REPLACE = 2,
+        ignoreAttr = ':not([data-pjax-ignore=true])',
         supported = !!(
             elementProto && history.pushState && (
                 domparser || (docImplementation && docImplementation.createHTMLDocument)
@@ -520,8 +521,8 @@
             remove();
 
             config = {
-                linkSelector: "a:not([data-pjax-ignore]):not([href^='#']):not([href^='javascript:'])",
-                formSelector: "form:not([data-pjax-ignore]):not([action^='javascript:'])",
+                linkSelector: "a",
+                formSelector: "form",
                 containers: [ "#pjax-container" ],
                 updatecurrent: false,
                 updatehead: true,
@@ -533,6 +534,9 @@
                 loader: true,
                 headers: {}
             };
+
+            opts.linkSelector += ignoreAttr;
+            opts.formSelector += ignoreAttr;
 
             for (var k in config) {
                 if (opts && k in opts) config[k] = opts[k];
