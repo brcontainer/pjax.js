@@ -33,7 +33,7 @@
         attrs = [
             { attr: "containers", cfg: "containers" },
             { attr: "replace", cfg: "replace" },
-            { attr: "updateHead", cfg: "updateHead" },
+            { attr: "update-head", cfg: "updateHead" },
             { attr: "insertion", cfg: "insertion" },
             { attr: "loader", cfg: "loader" },
             { attr: "scroll-left", cfg: "scrollLeft" },
