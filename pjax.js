@@ -535,12 +535,12 @@
                 headers: {}
             };
 
-            opts.linkSelector += ignoreAttr;
-            opts.formSelector += ignoreAttr;
-
             for (var k in config) {
                 if (opts && k in opts) config[k] = opts[k];
             }
+
+            opts.linkSelector += ignoreAttr;
+            opts.formSelector += ignoreAttr;
 
             opts = undef;
 
