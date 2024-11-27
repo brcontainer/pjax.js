@@ -1,3 +1,2 @@
-/* Pjax.js 0.6.7 | Copyright (c) 2024 Guilherme Nascimento (brcontainer@yahoo.com.br) | Released under the MIT license */
-
-.pjax-loader{position:fixed;z-index:200000;left:0;top:0;width:100%;pointer-events:none}.pjax-loader .pjax-progress{width:0;height:4px;opacity:1;background-color:rgb(119,182,255);-webkit-transition:width 1.5s ease,height .8s ease,opacity .8s ease;transition:width 1.5s ease,height .8s ease,opacity .8s ease}.pjax-inload .pjax-progress{width:95%}.pjax-end .pjax-progress{width:100%}.pjax-hide{display:none}
+/* Pjax.js 0.7.0 | Copyright (c) 2024 Guilherme Nascimento (brcontainer@yahoo.com.br) | Released under the MIT license */
+.pjax-loader{position:fixed;z-index:200000;left:0;top:0;width:100%;pointer-events:none}.pjax-loader .pjax-progress{width:0;height:4px;opacity:1;background-color:#77b6ff;-webkit-transition:width 1.5s,height .8s,opacity .8s;transition:width 1.5s,height .8s,opacity .8s}.pjax-inload .pjax-progress{width:95%}.pjax-end .pjax-progress{width:100%}.pjax-hide{display:none}

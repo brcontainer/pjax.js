@@ -1,7 +1,7 @@
 /*
  * Pjax.js 0.7.0
  *
- * Copyright (c) 2023 Guilherme Nascimento (brcontainer@yahoo.com.br)
+ * Copyright (c) 2024 Guilherme Nascimento (brcontainer@yahoo.com.br)
  *
  * Released under the MIT license
  */
@@ -218,18 +218,6 @@
             return "No such containers";
         }
 
-        var info = {
-            pjaxUrl: url,
-            pjaxData: data,
-            pjaxConfig: cfg
-        };
-
-        if (mode === PUSH) {
-            history.pushState(info, "", url);
-        } else if (mode === REPLACE) {
-            history.replaceState(info, "", url);
-        }
-
         if (evts.dom) pjaxTrigger("dom", url, tmp);
 
         var insertion = cfg.insertion,
@@ -264,6 +252,18 @@
                     }
                 });
             }
+        }
+
+        var info = {
+            pjaxUrl: url,
+            pjaxData: data,
+            pjaxConfig: cfg
+        };
+
+        if (mode === PUSH) {
+            history.pushState(info, "", url);
+        } else if (mode === REPLACE) {
+            history.replaceState(info, "", url);
         }
 
         win.scrollTo(scrollX, scrollY);
@@ -478,7 +478,6 @@
                 pjaxConfig: config
             }, "", url);
 
-            win.addEventListener("unload", pjaxAbort);
             win.addEventListener("popstate", pjaxState);
 
             if (config.linkSelector) doc.addEventListener("click", pjaxLink);
@@ -492,7 +491,6 @@
             doc.removeEventListener("click", pjaxLink);
             doc.removeEventListener("submit", pjaxForm);
 
-            win.removeEventListener("unload", pjaxAbort);
             win.removeEventListener("popstate", pjaxState);
 
             started = false;
@@ -535,14 +533,16 @@
                 headers: {}
             };
 
-            for (var k in config) {
-                if (opts && k in opts) config[k] = opts[k];
+            if (opts) {
+              for (var k in config) {
+                  if (k in opts) config[k] = opts[k];
+              }
+
+              opts.linkSelector += ignoreAttr;
+              opts.formSelector += ignoreAttr;
+
+              opts = undef;
             }
-
-            opts.linkSelector += ignoreAttr;
-            opts.formSelector += ignoreAttr;
-
-            opts = undef;
 
             if (/^(interactive|complete)$/.test(doc.readyState)) {
                 ready();
